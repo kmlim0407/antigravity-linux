@@ -8,7 +8,7 @@ function EmbedInner() {
   const searchParams = useSearchParams();
 
   // /embed?url=... 로 들어온 값
-  const rawUrl = searchParams.get("url") || "";
+  const rawUrl = searchParams?.get("url") ?? "";
   const decodedUrl = rawUrl ? decodeURIComponent(rawUrl) : "";
 
   if (!decodedUrl) {
