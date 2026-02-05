@@ -1,0 +1,10 @@
+# 환경변수 파일
+.env.local
+front/.env.local
+
+# node_modules, 빌드 결과물
+front/node_modules
+front/.next
+back/backend/.gradle
+back/backend/build
+
