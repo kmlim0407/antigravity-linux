@@ -28,6 +28,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 포트폴리오
               </a>
               <a href="/student-manage" className="hover:text-neutral-900">학생관리</a>
+              <a href="/makeup" className="hover:text-blue-600">
+                보강 관리
+              </a>
               <a href="/#contact" className="hover:text-blue-600">
                 상담 문의
               </a>
