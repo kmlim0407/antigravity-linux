@@ -14,7 +14,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </a>
 
             {/* 메뉴 */}
-            <nav className="flex gap-6 text-sm text-slate-600">
+            <nav className="flex gap-4 overflow-x-auto whitespace-nowrap text-sm text-slate-600">
               <a href="/" className="hover:text-blue-600">
                 홈
               </a>

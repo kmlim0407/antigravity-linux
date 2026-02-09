@@ -102,6 +102,21 @@ export default function StudentManageDashboardPage() {
           <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900">
             학생관리
           </h1>
+          <a
+  href="/makeup"
+  style={{
+    display: "inline-block",
+    padding: "10px 16px",
+    marginBottom: "16px",
+    borderRadius: "8px",
+    border: "1px solid #222",
+    textDecoration: "none",
+    fontSize: "14px",
+    fontWeight: 600,
+  }}
+>
+  📅 보강 예약 하러 가기
+</a>
           <p className="text-xs md:text-sm text-neutral-600">
             임경묵T가 내부에서만 보는 페이지입니다. 학생별 현재 상태·진도·다음
             계획을 한 눈에 정리하는 용도입니다.
