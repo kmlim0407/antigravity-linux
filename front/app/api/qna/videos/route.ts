@@ -1,97 +1,64 @@
-// app/api/qna/videos/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-const NOTION_API_KEY = process.env.NOTION_API_KEY;
-const NOTION_DATABASE_ID = process.env.NOTION_DATABASE_ID;
+// 🔹 1. 환경변수에서 토큰/DB ID 읽기
+const notionToken = process.env.NOTION_API_KEY;
+const notionDbId = process.env.NOTION_QNA_DB_ID;
+
+// 🔹 2. 노션 DB 컬럼 이름 (네 노션 DB 스샷 기준)
+const PROP_BOOK = "Book";       // 교재명 들어있는 컬럼
+const PROP_NUMBER = "Number";   // "고쟁이 29" 이런 텍스트 컬럼
+const PROP_URL = "VideoUrl";    // 유튜브 링크(URL 타입 컬럼)
+
+type VideoEntry = {
+  id: string;
+  book: string;
+  number: string;
+  title: string;
+  url: string;
+};
+
 const NOTION_VERSION = "2022-06-28";
 
-/**
- * 네 노션 DB 컬럼명
- *  - Book     : 교재 (예: "고쟁이")
- *  - Number   : 문제 번호 텍스트 (예: "고쟁이 29")
- *  - VideoUrl : 유튜브 링크 (예: youtu.be/...)
- */
-const NOTION_BOOK_PROP = "Book";
-const NOTION_NUMBER_PROP = "Number";
-const NOTION_URL_PROP = "VideoUrl";
-
-/**
- * youtu.be / youtube.com/watch 링크를
- * iframe에서 쓸 수 있는 embed URL로 변환
- *
- *  - youtu.be/ID?t=123          -> https://www.youtube.com/embed/ID?start=123
- *  - youtube.com/watch?v=ID&t=123 -> https://www.youtube.com/embed/ID?start=123
- */
-function toYoutubeEmbedUrl(url: string): string {
-  try {
-    if (!url) return url;
-
-    // youtu.be 형식
-    if (url.includes("youtu.be")) {
-      const [base, query] = url.split("?");
-      const videoId = base.split("/").pop() ?? "";
-
-      let start = "";
-      if (query) {
-        const params = new URLSearchParams(query);
-        const t = params.get("t");
-        if (t) start = `?start=${t}`;
-      }
-
-      return `https://www.youtube.com/embed/${videoId}${start}`;
-    }
-
-    // youtube.com/watch 형식
-    if (url.includes("youtube.com")) {
-      const u = new URL(url);
-      const videoId = u.searchParams.get("v");
-      const t = u.searchParams.get("t");
-
-      if (!videoId) return url;
-
-      return `https://www.youtube.com/embed/${videoId}${
-        t ? `?start=${t}` : ""
-      }`;
-    }
-
-    // 다른 도메인은 그대로 반환
-    return url;
-  } catch {
-    return url;
-  }
-}
-
+// 🔹 POST /api/qna/videos
 export async function POST(req: NextRequest) {
-  if (!NOTION_API_KEY || !NOTION_DATABASE_ID) {
-    console.error("Notion env missing");
-    return NextResponse.json(
-      { error: "Notion 설정이 되어 있지 않습니다." },
-      { status: 500 }
-    );
-  }
-
-  const body = await req.json().catch(() => ({} as any));
-  const rawBook = String(body.book ?? "");
-  const rawNumber = String(body.number ?? "");
-
-  const trimmedBook = rawBook.trim();
-  // "29", "고쟁이 29", "29번" 이런 것들에서 숫자만 추출
-  const digitNumber = rawNumber.replace(/[^\d]/g, "");
-
-  if (!trimmedBook || !digitNumber) {
-    return NextResponse.json(
-      { error: "교재와 문제 번호를 모두 입력해주세요." },
-      { status: 400 }
-    );
-  }
-
   try {
-    const resp = await fetch(
-      `https://api.notion.com/v1/databases/${NOTION_DATABASE_ID}/query`,
+    // 1) env 체크
+    if (!notionToken || !notionDbId) {
+      console.error("Notion env missing", {
+        hasToken: !!notionToken,
+        hasDbId: !!notionDbId,
+      });
+      return NextResponse.json(
+        { error: "노션 설정이 잘못되었습니다. (env 누락)" },
+        { status: 500 }
+      );
+    }
+
+    // 2) 요청 바디 파싱
+    const body = (await req.json().catch(() => null)) as
+      | {
+          book?: string;
+          number?: string;
+        }
+      | null;
+
+    const book = body?.book?.trim() ?? "";
+    const number = body?.number?.trim() ?? "";
+
+    if (!book || !number) {
+      return NextResponse.json(
+        { error: "교재와 번호를 모두 입력해주세요." },
+        { status: 400 }
+      );
+    }
+
+    // 3) Notion REST API 직접 호출
+    const notionRes = await fetch(
+      `https://api.notion.com/v1/databases/${notionDbId}/query`,
       {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${NOTION_API_KEY}`,
+          Authorization: `Bearer ${notionToken}`,
           "Notion-Version": NOTION_VERSION,
           "Content-Type": "application/json",
         },
@@ -99,17 +66,18 @@ export async function POST(req: NextRequest) {
           filter: {
             and: [
               {
-                // Book == "고쟁이"
-                property: NOTION_BOOK_PROP,
+                property: PROP_BOOK,
                 rich_text: {
-                  equals: trimmedBook,
+                  // "고쟁이" 이런 값 포함인지 체크
+                  contains: book,
                 },
               },
               {
-                // Number 안에 "29" 가 포함되어 있는지 (예: "고쟁이 29")
-                property: NOTION_NUMBER_PROP,
+                property: PROP_NUMBER,
                 rich_text: {
-                  contains: digitNumber,
+                  // Number 컬럼 값이 "고쟁이 29" 이런 식이라서
+                  // equals가 아니라 contains 로 검색
+                  contains: number,
                 },
               },
             ],
@@ -118,59 +86,63 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    if (!resp.ok) {
-      const text = await resp.text();
-      console.error("Notion error:", resp.status, text);
+    const data = (await notionRes.json()) as any;
+
+    if (!notionRes.ok) {
+      console.error("Notion query failed", data);
       return NextResponse.json(
-        { error: "Notion 조회 중 오류가 발생했습니다." },
-        { status: 500 }
+        { error: "노션 조회 중 오류가 발생했습니다. (쿼리 실패)" },
+        { status: notionRes.status }
       );
     }
 
-    const data = (await resp.json()) as any;
+    const results = (data.results ?? []) as any[];
 
-    const videos = (data.results ?? []).map((page: any) => {
-      const props = page.properties ?? {};
+    // 4) 결과를 VideoEntry 배열로 변환
+    const videos: VideoEntry[] = results
+      .map((page: any): VideoEntry | null => {
+        const props = page.properties ?? {};
 
-      const bookProp = props[NOTION_BOOK_PROP];
-      const numberProp = props[NOTION_NUMBER_PROP];
-      const urlProp = props[NOTION_URL_PROP];
+        const bookProp = props[PROP_BOOK];
+        const numberProp = props[PROP_NUMBER];
+        const urlProp = props[PROP_URL];
 
-      const bookText =
-        bookProp?.rich_text?.[0]?.plain_text ??
-        bookProp?.title?.[0]?.plain_text ??
-        "";
+        const bookText =
+          bookProp?.rich_text?.[0]?.plain_text ??
+          bookProp?.title?.[0]?.plain_text ??
+          "";
+        const numberText =
+          numberProp?.rich_text?.[0]?.plain_text ??
+          numberProp?.title?.[0]?.plain_text ??
+          "";
+        const urlText =
+          urlProp?.url ??
+          urlProp?.rich_text?.[0]?.plain_text ??
+          "";
 
-      const numberText =
-        numberProp?.rich_text?.[0]?.plain_text ??
-        numberProp?.title?.[0]?.plain_text ??
-        "";
+        if (!urlText) return null;
 
-      const rawUrl =
-        urlProp?.url ??
-        urlProp?.rich_text?.[0]?.href ??
-        urlProp?.rich_text?.[0]?.plain_text ??
-        "";
+        const titleText =
+          (bookText && numberText
+            ? `${bookText} - ${numberText}`
+            : bookText || numberText || "질문 영상");
 
-      const title =
-        numberText ||
-        bookText ||
-        (props.Name?.title?.[0]?.plain_text ?? "제목 없음");
+        return {
+          id: page.id,
+          book: bookText,
+          number: numberText,
+          title: titleText,
+          url: urlText,
+        };
+      })
+      .filter((v: VideoEntry | null): v is VideoEntry => v !== null);
 
-      return {
-        id: page.id as string,
-        title,
-        book: bookText,
-        number: numberText,
-        url: toYoutubeEmbedUrl(rawUrl), // 🔹 여기서 임베드용 URL로 변환
-      };
-    });
+    return NextResponse.json({ videos }, { status: 200 });
+  } catch (err: any) {
+    console.error("QNA Notion Error:", err?.message || err);
 
-    return NextResponse.json({ videos });
-  } catch (err) {
-    console.error("Notion fetch error:", err);
     return NextResponse.json(
-      { error: "서버 오류가 발생했습니다." },
+      { error: "노션 조회 중 오류가 발생했습니다." },
       { status: 500 }
     );
   }
