@@ -14,23 +14,16 @@ export default function MakeupPage() {
                 보강 예약 페이지
               </h1>
               <p className="mt-3 text-[11px] text-slate-300 sm:text-xs md:text-sm">
-                아래 예약 캘린더를 통해{" "}
-                <span className="font-semibold text-white">
-                  가능한 날짜와 시간대
-                </span>
-                를 선택하여 보강을 신청할 수 있습니다.
-                <br className="hidden sm:block" />
-                신청이 완료되면 선생님이 확인 후, 확정 또는 시간 조정 안내를
-                드립니다.
+                캘린더에서 날짜·시간 선택 → 신청 → 선생님 확인 후 확정.
               </p>
             </div>
 
             <div className="rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-[10px] text-slate-300 sm:text-[11px]">
-              <p className="font-semibold text-slate-100">📌 이용 전 안내</p>
+              <p className="font-semibold text-slate-100">📌 안내</p>
               <ul className="mt-1 space-y-1">
-                <li>· 시험 기간에는 보강 수요가 많을 수 있습니다.</li>
-                <li>· 불가피한 경우가 아니면 당일 취소는 삼가 주세요.</li>
-                <li>· 단순 숙제 미제출보다는 개념/유형 보완 위주로 활용해 주세요.</li>
+                <li>· 시험 기간 보강 수요 많음</li>
+                <li>· 당일 취소 자제</li>
+                <li>· 개념/유형 보완 위주로</li>
               </ul>
             </div>
           </div>
@@ -43,38 +36,21 @@ export default function MakeupPage() {
           {/* 왼쪽 – 보강 프로세스 설명 */}
           <div className="md:w-[32%]">
             <h2 className="text-sm font-semibold text-slate-100 sm:text-base">
-              보강 예약은 이렇게 진행됩니다
+              진행 순서
             </h2>
             <ol className="mt-3 space-y-2 text-[11px] text-slate-300 sm:text-xs">
-              <li>
-                <span className="font-semibold text-slate-100">1.</span>{" "}
-                아래 캘린더에서{" "}
-                <span className="font-medium">날짜와 시간대를 선택</span>합니다.
-              </li>
-              <li>
-                <span className="font-semibold text-slate-100">2.</span>{" "}
-                이름·연락처·보강이 필요한 단원/사유를 간단히 입력합니다.
-              </li>
-              <li>
-                <span className="font-semibold text-slate-100">3.</span>{" "}
-                예약이 접수되면, 선생님이 확인 후{" "}
-                <span className="font-medium">확정 또는 조정 안내</span>를
-                드립니다.
-              </li>
-              <li>
-                <span className="font-semibold text-slate-100">4.</span>{" "}
-                보강 내용과 결과는{" "}
-                <span className="font-medium">학생 관리 데이터에 함께 반영</span>
-                됩니다.
-              </li>
+              <li><span className="font-semibold text-slate-100">1.</span> 캘린더에서 날짜·시간 선택</li>
+              <li><span className="font-semibold text-slate-100">2.</span> 이름·연락처·단원/사유 입력</li>
+              <li><span className="font-semibold text-slate-100">3.</span> 선생님 확인 후 확정</li>
+              <li><span className="font-semibold text-slate-100">4.</span> 학생 관리 데이터 반영</li>
             </ol>
 
             <div className="mt-5 rounded-2xl border border-slate-800 bg-slate-900/70 px-4 py-3 text-[11px] text-slate-300 sm:text-xs">
-              <p className="font-semibold text-slate-100">추천 활용 방법</p>
+              <p className="font-semibold text-slate-100">추천</p>
               <ul className="mt-1 space-y-1">
-                <li>· 내신/모의고사에서 계속 틀리는 단원을 정리하고 싶을 때</li>
-                <li>· 결석으로 놓친 수업 내용을 따라잡아야 할 때</li>
-                <li>· 개념은 아는데, 문제 적용이 잘 안 될 때</li>
+                <li>· 계속 틀리는 단원 정리</li>
+                <li>· 결석 수업 따라잡기</li>
+                <li>· 개념은 아는데 적용이 안 될 때</li>
               </ul>
             </div>
           </div>

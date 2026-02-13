@@ -34,3 +34,17 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## 학생 성취도 DB 설정 (Upstash Redis)
+
+학생 성취도 체크리스트를 서버에 저장하려면 Upstash Redis를 설정하세요.
+
+1. [Upstash Console](https://console.upstash.com) 접속 후 무료 가입
+2. **Create Database** → Redis 선택 → 리전 선택 후 생성
+3. 생성된 DB의 **REST API** 탭에서 `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` 복사
+4. `.env.local`에 추가:
+   ```
+   UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
+   UPSTASH_REDIS_REST_TOKEN=AXxxxx...
+   ```
+5. Vercel 배포 시: 프로젝트 Settings → Environment Variables에 동일하게 추가

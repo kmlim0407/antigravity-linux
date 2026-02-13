@@ -28,18 +28,12 @@ export default function ParentsPage() {
             PARENT GUIDE · IM MATH STUDIO
           </p>
           <h1 className="text-[26px] font-semibold tracking-tight sm:text-3xl md:text-[38px] md:leading-[1.18]">
-            자녀의 수학 공부를
+            자녀 수학 현황을
             <br className="hidden sm:block" />
-            <span className="text-slate-100">눈에 보이는 데이터로 확인하는 페이지</span>
+            <span className="text-slate-100">데이터로</span>
           </h1>
           <p className="mt-4 max-w-xl text-[11px] text-slate-200 sm:text-sm md:text-base md:text-slate-300">
-            이 페이지에서는 자녀의 수업 방식, 관리 체계, 보강·질문 시스템을
-            한눈에 보실 수 있습니다.{" "}
-            <span className="font-semibold text-white">
-              “수업을 잘 따라가고 있는지”
-            </span>
-            를 감으로가 아니라,{" "}
-            <span className="font-semibold text-white">데이터</span>로 설명드립니다.
+            수업·관리·보강·질문을 한눈에. 감이 아닌 데이터로 설명합니다.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs sm:gap-3 sm:text-sm">
@@ -47,18 +41,18 @@ export default function ParentsPage() {
               href="/students"
               className="rounded-full bg-white px-5 py-2 font-semibold text-black shadow-sm transition hover:bg-slate-100 sm:px-6 sm:py-2.5"
             >
-              학생용 안내 먼저 보기
+              학생용 안내
             </a>
             <a
               href="/makeup"
               className="rounded-full border border-slate-400 px-5 py-2 text-slate-100 transition hover:border-slate-200 hover:bg-white/5 sm:px-6 sm:py-2.5"
             >
-              📅 보강 예약 시스템 보기
+              📅 보강 예약
             </a>
           </div>
 
           <p className="mt-4 text-[10px] text-slate-400 sm:text-[11px]">
-            * 일부 화면은 예시이며, 실제 운영 시에는 자녀의 실데이터가 표시됩니다.
+            * 일부 화면은 예시입니다.
           </p>
         </motion.div>
       </section>
@@ -77,10 +71,10 @@ export default function ParentsPage() {
               SYSTEM OVERVIEW
             </p>
             <h2 className="mt-2 text-xl font-semibold md:text-2xl">
-              단순 “문제풀이”가 아닌 구조화된 관리 시스템
+              구조화된 관리 시스템
             </h2>
             <p className="mt-2 text-xs text-slate-600 sm:text-sm">
-              수업–숙제–오답–보강–성취도까지 한 흐름으로 관리합니다.
+              수업–숙제–오답–보강–성취도, 한 흐름.
             </p>
           </header>
 

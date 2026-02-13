@@ -28,15 +28,12 @@ export default function StudentsPage() {
             STUDENT GUIDE · IM MATH STUDIO
           </p>
           <h1 className="text-[28px] font-semibold tracking-tight sm:text-3xl md:text-[40px] md:leading-[1.12]">
-            수업, 숙제, 보강까지
+            수업·숙제·보강
             <br className="hidden sm:block" />
-            <span className="text-slate-100"> 한 곳에서 관리하는 학생 전용 페이지</span>
+            <span className="text-slate-100">한 곳에서</span>
           </h1>
           <p className="mt-4 max-w-xl text-[11px] text-slate-200 sm:text-sm md:text-base md:text-slate-300">
-            여기에서 오늘 수업 흐름, 숙제, 오답 입력, 보강 신청까지 전부 확인하고
-            제출할 수 있습니다. 복잡하게 묻지 말고,{" "}
-            <span className="font-semibold text-white">매 수업 끝나고 5분</span>만
-            투자하면 돼요.
+            수업 흐름, 숙제, 오답, 보강 신청 — 매 수업 후 5분이면 끝.
           </p>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2 text-xs sm:gap-3 sm:text-sm">
@@ -55,7 +52,7 @@ export default function StudentsPage() {
           </div>
 
           <p className="mt-4 text-[10px] text-slate-400 sm:text-[11px]">
-            * 버튼은 실제 운영 페이지와 바로 연결됩니다.
+            * 실제 페이지와 연결됨
           </p>
         </motion.div>
       </section>
@@ -74,10 +71,10 @@ export default function StudentsPage() {
               HOW TO USE
             </p>
             <h2 className="mt-2 text-xl font-semibold md:text-2xl">
-              이 사이트를 이렇게 쓰면 됩니다
+              사용 방법
             </h2>
             <p className="mt-2 text-xs text-slate-600 sm:text-sm">
-              헷갈리지 않게, 수업–숙제–오답–보강까지 딱 세 단계로 정리했습니다.
+              수업–숙제–오답–보강, 세 단계.
             </p>
           </header>
 
