@@ -170,33 +170,33 @@ function DateCell({
 
   return (
     <div
-      className={`flex min-h-[160px] flex-col rounded-xl border p-2.5 ${
+      className={`flex min-h-[100px] flex-col rounded-lg border p-1.5 sm:min-h-[160px] sm:rounded-xl sm:p-2.5 ${
         isToday ? "border-blue-400 bg-blue-50/50" : "border-slate-200 bg-white"
       }`}
     >
-      <div className="mb-1.5 text-center">
-        <span className={`text-sm font-semibold ${isToday ? "text-blue-600" : "text-slate-700"}`}>
+      <div className="mb-1 text-center sm:mb-1.5">
+        <span className={`text-xs font-semibold sm:text-sm ${isToday ? "text-blue-600" : "text-slate-700"}`}>
           {dayNum}
         </span>
-        <span className="ml-1 text-[10px] text-slate-400">
+        <span className="ml-0.5 text-[9px] text-slate-400 sm:ml-1 sm:text-[10px]">
           {WEEKDAYS[dayOfWeek]}
         </span>
       </div>
 
-      <div className="flex-1 space-y-1 overflow-auto">
+      <div className="flex-1 space-y-0.5 overflow-auto sm:space-y-1">
         {isMon && (
           <div className="space-y-0.5">
             {MON_SHORT.map((label) => (
               <label
                 key={label}
-                className="flex cursor-pointer items-center gap-1.5 text-[11px]"
+                className="flex min-h-[28px] cursor-pointer items-center gap-1.5 py-0.5 text-[10px] touch-manipulation sm:min-h-[24px] sm:text-[11px]"
               >
                 <input
                   type="checkbox"
                   checked={monCheck[label] ?? false}
                   onChange={() => toggleMon(label)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-3 w-3 shrink-0 rounded border-slate-300 text-blue-600"
+                  className="h-4 w-4 min-h-[20px] min-w-[20px] shrink-0 rounded border-slate-300 text-blue-600 touch-manipulation sm:h-3 sm:w-3 sm:min-h-[12px] sm:min-w-[12px]"
                 />
                 <span className="truncate">{label}</span>
               </label>
@@ -208,14 +208,14 @@ function DateCell({
             {FRI_SHORT.map((label) => (
               <label
                 key={label}
-                className="flex cursor-pointer items-center gap-1.5 text-[11px]"
+                className="flex min-h-[28px] cursor-pointer items-center gap-1.5 py-0.5 text-[10px] touch-manipulation sm:min-h-[24px] sm:text-[11px]"
               >
                 <input
                   type="checkbox"
                   checked={friCheck[label] ?? false}
                   onChange={() => toggleFri(label)}
                   onClick={(e) => e.stopPropagation()}
-                  className="h-3 w-3 shrink-0 rounded border-slate-300 text-blue-600"
+                  className="h-4 w-4 min-h-[20px] min-w-[20px] shrink-0 rounded border-slate-300 text-blue-600 touch-manipulation sm:h-3 sm:w-3 sm:min-h-[12px] sm:min-w-[12px]"
                 />
                 <span className="truncate">{label}</span>
               </label>
@@ -223,7 +223,7 @@ function DateCell({
           </div>
         )}
         {!isMon && !isFri && (
-          <p className="text-[10px] text-slate-400">수업 없음</p>
+          <p className="py-1 text-[9px] text-slate-400 sm:text-[10px]">수업 없음</p>
         )}
       </div>
     </div>
@@ -256,11 +256,11 @@ export default function StudentDetailPage({ params }: PageProps) {
 
   if (!student) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center px-4">
-        <p className="mb-4">학생을 찾을 수 없습니다.</p>
+      <div className="flex min-h-screen flex-col items-center justify-center px-4 pb-[env(safe-area-inset-bottom)]">
+        <p className="mb-4 text-center text-sm sm:text-base">학생을 찾을 수 없습니다.</p>
         <button
           onClick={() => router.push("/student")}
-          className="rounded-lg border bg-white px-4 py-2 text-sm shadow-sm"
+          className="min-h-[44px] rounded-lg border bg-white px-4 py-3 text-sm shadow-sm touch-manipulation"
         >
           목록으로
         </button>
@@ -293,8 +293,8 @@ export default function StudentDetailPage({ params }: PageProps) {
 
   if (step === "password") {
     return (
-      <div className="flex min-h-screen flex-col items-center px-4 py-8">
-        <h1 className="mb-4 text-2xl font-bold">{student.name}</h1>
+      <div className="flex min-h-screen flex-col items-center px-4 py-6 pb-[env(safe-area-inset-bottom)] sm:py-8">
+        <h1 className="mb-4 text-xl font-bold sm:text-2xl">{student.name}</h1>
         <form
           onSubmit={handlePasswordSubmit}
           className="w-full max-w-sm rounded-2xl border bg-white px-4 py-6 shadow-sm"
@@ -306,20 +306,21 @@ export default function StudentDetailPage({ params }: PageProps) {
             type="password"
             value={inputPassword}
             onChange={(e) => setInputPassword(e.target.value)}
-            className="mb-3 w-full rounded-lg border px-3 py-2 text-sm"
+            className="mb-3 w-full rounded-lg border px-4 py-3 text-base min-h-[44px] touch-manipulation"
             placeholder="비밀번호"
+            autoComplete="current-password"
           />
           {error && <p className="mb-2 text-sm text-red-500">{error}</p>}
           <button
             type="submit"
-            className="w-full rounded-lg border bg-blue-50 py-2 text-sm font-semibold shadow-sm hover:bg-blue-100"
+            className="w-full rounded-lg border bg-blue-50 py-3 min-h-[44px] text-base font-semibold shadow-sm hover:bg-blue-100 active:bg-blue-200 touch-manipulation"
           >
             입장하기
           </button>
         </form>
         <button
           onClick={() => router.push("/student")}
-          className="mt-4 text-xs text-gray-500 underline"
+          className="mt-4 py-3 px-4 text-sm text-gray-500 underline touch-manipulation min-h-[44px]"
         >
           ← 목록으로
         </button>
@@ -329,44 +330,44 @@ export default function StudentDetailPage({ params }: PageProps) {
 
   const days = getCalendarDays();
   return (
-      <div className="flex min-h-screen flex-col items-center px-4 py-6">
-        <h1 className="mb-1 text-2xl font-bold">{student.name}</h1>
-        <p className="mb-4 text-sm text-gray-500">
-          날짜 안에서 바로 체크하세요. 월요일·금요일만 수업 항목이 표시됩니다.
+      <div className="flex min-h-screen flex-col items-center px-2 py-4 pb-[env(safe-area-inset-bottom)] sm:px-4 sm:py-6">
+        <h1 className="mb-1 text-xl font-bold sm:text-2xl">{student.name}</h1>
+        <p className="mb-3 text-xs text-gray-500 text-center sm:mb-4 sm:text-sm">
+          날짜 안에서 바로 체크하세요. 월·금만 수업 항목 표시됩니다.
         </p>
 
-        <div className="w-full max-w-5xl rounded-2xl border bg-white px-5 py-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="w-full max-w-5xl overflow-x-auto rounded-2xl border bg-white px-3 py-4 shadow-sm sm:px-5 sm:py-5">
+          <div className="mb-3 flex items-center justify-between sm:mb-4">
             <button
               type="button"
               onClick={prevMonth}
-              className="rounded-lg px-4 py-2 text-sm hover:bg-slate-100"
+              className="rounded-lg px-3 py-2.5 min-h-[44px] min-w-[44px] text-sm hover:bg-slate-100 active:bg-slate-200 touch-manipulation"
             >
-              ← 이전 달
+              ← 이전
             </button>
-            <span className="text-lg font-semibold">
+            <span className="text-base font-semibold sm:text-lg">
               {calendarMonth.getFullYear()}년 {calendarMonth.getMonth() + 1}월
             </span>
             <button
               type="button"
               onClick={nextMonth}
-              className="rounded-lg px-4 py-2 text-sm hover:bg-slate-100"
+              className="rounded-lg px-3 py-2.5 min-h-[44px] min-w-[44px] text-sm hover:bg-slate-100 active:bg-slate-200 touch-manipulation"
             >
-              다음 달 →
+              다음 →
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid min-w-[280px] grid-cols-7 gap-1 sm:gap-2">
             {WEEKDAYS.map((w) => (
               <div
                 key={w}
-                className="py-2 text-center text-sm font-medium text-slate-500"
+                className="py-1 text-center text-[10px] font-medium text-slate-500 sm:py-2 sm:text-sm"
               >
                 {w}
               </div>
             ))}
             {days.map((key, i) => (
-              <div key={i}>
+              <div key={i} className="min-w-0">
                 {key ? (
                   <DateCell
                     dateKey={key}
@@ -378,7 +379,7 @@ export default function StudentDetailPage({ params }: PageProps) {
                     })()}
                   />
                 ) : (
-                  <div className="min-h-[160px] rounded-xl border border-slate-100 bg-slate-50/30" />
+                  <div className="min-h-[100px] sm:min-h-[160px] rounded-lg sm:rounded-xl border border-slate-100 bg-slate-50/30" />
                 )}
               </div>
             ))}
@@ -387,7 +388,7 @@ export default function StudentDetailPage({ params }: PageProps) {
 
         <button
           onClick={() => router.push("/student")}
-          className="mt-6 text-xs text-gray-500 underline"
+          className="mt-4 py-3 px-4 text-sm text-gray-500 underline touch-manipulation min-h-[44px] sm:mt-6"
         >
           ← 목록으로
         </button>
