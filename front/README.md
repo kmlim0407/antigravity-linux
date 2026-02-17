@@ -35,16 +35,19 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-## 학생 성취도 DB 설정 (Upstash Redis)
+## 환경 변수 설정 (.env.local)
 
-학생 성취도 체크리스트를 서버에 저장하려면 Upstash Redis를 설정하세요.
+프로젝트 루트에 `.env.local`을 만들고 아래 키를 필요한 만큼 채우세요.  
+템플릿은 `.env.example`을 참고하면 됩니다.
 
-1. [Upstash Console](https://console.upstash.com) 접속 후 무료 가입
-2. **Create Database** → Redis 선택 → 리전 선택 후 생성
-3. 생성된 DB의 **REST API** 탭에서 `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` 복사
-4. `.env.local`에 추가:
-   ```
-   UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
-   UPSTASH_REDIS_REST_TOKEN=AXxxxx...
-   ```
-5. Vercel 배포 시: 프로젝트 Settings → Environment Variables에 동일하게 추가
+| 키 | 용도 | 발급/확인 |
+|----|------|------------|
+| `GEMINI_API_KEY` | 챗봇 (Gemini + Google Search) | [Google AI Studio](https://aistudio.google.com/apikey) (결제 연결 시 검색, 월 5천회 무료) |
+| `NOTION_API_KEY` / `NOTION_TOKEN` | Notion 연동 (QnA, 오답기록 등) | [Notion 연동](https://www.notion.so/my-integrations) 생성 후 토큰 복사 |
+| `NOTION_WRONG_DB_ID` | 오답 기록 DB | Notion DB 페이지 URL의 `...?v=xxxx` 앞 부분 ID |
+| `NOTION_QNA_DB_ID` | QnA 영상 목록 DB | 위와 동일하게 DB ID 복사 |
+| `UPSTASH_REDIS_REST_URL` | 학생 성취도 저장 (Redis) | [Upstash Console](https://console.upstash.com) → DB 생성 → REST API 탭 |
+| `UPSTASH_REDIS_REST_TOKEN` | 위와 쌍으로 사용 | 동일 |
+
+- 챗봇만 쓸 경우: `GEMINI_API_KEY`만 설정하면 됩니다.
+- Vercel 배포 시: 프로젝트 **Settings → Environment Variables**에 같은 키를 추가하세요.

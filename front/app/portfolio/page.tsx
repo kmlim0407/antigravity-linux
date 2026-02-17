@@ -1,3 +1,5 @@
+const INTRO_VIDEO_URL = "https://youtu.be/SLaBGKGeveo";
+
 export default function PortfolioPage() {
   return (
     <main className="min-h-screen bg-slate-50 px-6 py-16 text-slate-800">
@@ -5,7 +7,7 @@ export default function PortfolioPage() {
         {/* 제목 */}
         <header className="space-y-2">
           <h1 className="text-3xl md:text-4xl font-bold">
-            임경묵T 수업 포트폴리오
+            임경묵T 수업영상
           </h1>
           <p className="text-slate-600">
             실제 수업 영상 일부를 통해
@@ -13,7 +15,36 @@ export default function PortfolioPage() {
           </p>
         </header>
 
-        {/* 중등 수업 영상 */}
+        {/* 1학기 소개영상 */}
+        <section className="space-y-4">
+          <h2 className="text-2xl font-semibold">1학기 소개영상</h2>
+          <a
+            href={INTRO_VIDEO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex w-full max-w-md items-center gap-5 rounded-2xl border border-slate-200 bg-white px-6 py-5 shadow-sm transition-all hover:border-slate-300 hover:shadow-lg sm:gap-6 sm:px-8 sm:py-6"
+          >
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-red-50 text-red-500 group-hover:bg-red-100 sm:h-16 sm:w-16">
+              <svg
+                className="h-7 w-7 sm:h-8 sm:w-8"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path d="M8 5v14l11-7z" />
+              </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[17px] font-semibold text-slate-900 sm:text-[19px]">
+                1학기 소개영상
+              </h3>
+              <p className="mt-1 text-[13px] text-slate-500 sm:text-[14px]">
+                영상 보러가기 →
+              </p>
+            </div>
+          </a>
+        </section>
+
+        {/* 고등부 수업 영상 */}
         <section className="space-y-6">
           <h2 className="text-2xl font-semibold">고등부 수업 영상</h2>
 

@@ -1,7 +1,5 @@
 // 상단 탭 UI
-function StudentTabs(props: {
-  active: "dashboard" | "list" | "qna" | "records";
-}) {
+function StudentTabs(props: { active: "qna" | "records" }) {
   const { active } = props;
   const base =
     "flex-1 whitespace-nowrap rounded-lg border px-3 py-2 text-center text-xs md:text-sm transition";
@@ -11,20 +9,6 @@ function StudentTabs(props: {
 
   return (
     <div className="mb-4 flex gap-2 overflow-x-auto">
-      <a
-        href="/student-manage"
-        className={
-          base + " " + (active === "dashboard" ? activeClass : inactive)
-        }
-      >
-        대시보드
-      </a>
-      <a
-        href="/student-manage/list"
-        className={base + " " + (active === "list" ? activeClass : inactive)}
-      >
-        학생 목록
-      </a>
       <a
         href="/student-manage/qna"
         className={base + " " + (active === "qna" ? activeClass : inactive)}
@@ -56,7 +40,7 @@ export default function StudentListPage() {
           </p>
         </header>
 
-        <StudentTabs active="list" />
+        <StudentTabs active="qna" />
 
         <section className="rounded-xl border border-neutral-300 bg-white p-4 md:p-5 shadow-sm text-xs md:text-sm text-neutral-700">
           <p className="mb-2 font-semibold text-neutral-900">
