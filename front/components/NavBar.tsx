@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   { href: "/", label: "홈" },
   { href: "/portfolio", label: "수업영상" },
   { href: "/student-manage", label: "학생관리" },
-  { href: "/makeup", label: "보강 관리" },
+  { href: "/makeup", label: "보강관리" },
 ];
 
 export default function NavBar() {
@@ -54,16 +54,16 @@ export default function NavBar() {
             className="flex w-full flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white/95 backdrop-blur-sm"
           >
             {/* 상단 행: 햄버거(2줄)+MENU(왼쪽) + 로고(가운데) + 채팅(오른쪽) */}
-            <div className="grid min-h-[40px] grid-cols-3 items-center px-4 py-2 sm:min-h-[44px]">
-              <div className="flex items-center gap-2">
+            <div className="grid min-h-[36px] grid-cols-3 items-center px-2 py-1.5 sm:min-h-[44px] sm:px-4 sm:py-2">
+              <div className="flex min-w-0 shrink items-center gap-1 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => setOpen((prev) => !prev)}
-                  className="flex h-9 w-9 flex-col items-center justify-center gap-1 rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  className="flex h-8 w-8 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 sm:h-9 sm:w-9 sm:gap-1"
                   aria-label={open ? "메뉴 닫기" : "메뉴 열기"}
                 >
                   <motion.svg
-                    className="h-4 w-6"
+                    className="h-3.5 w-5 sm:h-4 sm:w-6"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -73,7 +73,7 @@ export default function NavBar() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.75} d="M2 8h20M2 16h20" />
                   </motion.svg>
                 </button>
-                <span className="hidden text-lg font-bold uppercase tracking-[0.15em] text-slate-700 sm:inline" style={{ fontFamily: "var(--font-outfit)" }}>Menu</span>
+                <span className="hidden shrink-0 text-xs font-bold uppercase tracking-[0.1em] text-slate-700 sm:inline sm:text-sm md:text-base md:tracking-[0.12em] lg:text-lg lg:tracking-[0.15em]" style={{ fontFamily: "var(--font-outfit)" }}>Menu</span>
               </div>
               <div className="flex min-h-[48px] min-w-[48px] items-center justify-center justify-self-center sm:min-h-[52px] sm:min-w-[52px]">
                 <AnimatePresence mode="wait">
@@ -156,13 +156,13 @@ export default function NavBar() {
                   }}
                   className="overflow-hidden border-t border-slate-200/60"
                 >
-                  <div className="flex flex-wrap justify-evenly gap-2 px-6 py-5 sm:flex-row sm:justify-between sm:gap-6 sm:px-10 sm:py-6">
+                  <div className="flex flex-nowrap justify-between items-center gap-1 overflow-x-auto px-2 py-2 sm:gap-3 sm:px-6 sm:py-4 md:gap-4 md:px-8 md:py-5 lg:gap-6 lg:px-10 lg:py-6 nav-scroll-hide">
                     {NAV_ITEMS.map((item) => (
                       <Link
                         key={item.href}
                         href={item.href}
                         onClick={() => setOpen(false)}
-                        className="rounded-lg px-5 py-2 text-[15px] font-medium tracking-[0.12em] text-slate-700 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:text-[16px] sm:tracking-[0.15em]"
+                        className="shrink-0 rounded-lg px-2 py-1 text-[10px] font-medium tracking-[0.06em] text-slate-700 transition-colors hover:bg-slate-50 hover:text-blue-600 sm:px-3 sm:py-2 sm:text-xs sm:tracking-[0.08em] md:px-4 md:text-sm md:tracking-[0.1em] lg:px-5 lg:text-[15px] lg:tracking-[0.12em] xl:text-[16px] xl:tracking-[0.15em]"
                       >
                         {item.label}
                       </Link>

@@ -5,7 +5,7 @@ import { students, type Student } from "@/lib/students";
 
 export default function StudentListPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center px-4 py-6 pb-[env(safe-area-inset-bottom)] sm:py-8">
+    <div className="min-h-screen overflow-x-hidden flex flex-col items-center px-4 py-6 pb-[env(safe-area-inset-bottom)] sm:py-8">
       <h1 className="text-xl font-bold mb-2 sm:text-2xl">성취도</h1>
       <p className="mb-4 text-gray-600 text-sm text-center sm:mb-6">
         이름을 누르고 비밀번호 입력 후 체크하세요.

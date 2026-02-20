@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 
 type RecordItem = {
   id: string;
@@ -240,100 +241,60 @@ export default function StudentManageRecordsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-6 flex flex-col gap-8">
-      {/* 헤더 */}
-      <header className="border-b pb-4">
-        <h1 className="text-2xl font-bold">질문 / 오답 기록 관리</h1>
-        <p className="text-sm text-slate-500">
-          기록 입력 → 노션 저장 → 학생별 오답 행렬 엑셀 → 질문번호 통계까지 한 번에.
-        </p>
-      </header>
-
-      {/* 에러 메시지 */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-sm">
-          {error}
-        </div>
-      )}
-
-      {/* 입력 폼 */}
-      <section className="bg-white border rounded-xl p-4 shadow-sm">
-        <h2 className="font-semibold mb-3">기록 추가</h2>
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <input
-            placeholder="학생 이름 *"
-            value={studentName}
-            onChange={(e) => setStudentName(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
-          <input
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="과목"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="오답 번호 (예: 3,5,7)"
-            value={wrongNumbers}
-            onChange={(e) => setWrongNumbers(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
-          <input
-            placeholder="질문 번호 (예: 10,12)"
-            value={questionNumbers}
-            onChange={(e) => setQuestionNumbers(e.target.value)}
-            className="border rounded px-3 py-2 text-sm"
-          />
-          <textarea
-            placeholder="메모"
-            value={memo}
-            onChange={(e) => setMemo(e.target.value)}
-            className="border rounded px-3 py-2 text-sm md:col-span-2"
-          />
-        </div>
-
-        <button
-          onClick={handleAddRecord}
-          disabled={saving}
-          className="mt-4 bg-blue-600 text-white px-5 py-2 rounded-full text-sm"
+    <main className="min-h-[80vh] overflow-x-hidden bg-white px-3 py-8 sm:px-4 sm:py-10 sm:py-12" style={{ fontFamily: "var(--font-outfit)" }}>
+      <div className="mx-auto max-w-5xl space-y-6">
+        <Link
+          href="/student-manage"
+          className="mb-2 inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 sm:text-[14px]"
         >
+          <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          뒤로가기
+        </Link>
+        <header>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">오답 / 기록</h1>
+          <p className="mt-1 text-[12px] text-slate-600 sm:text-[13px]">기록 입력 → 노션 저장 → 엑셀 내보내기</p>
+        </header>
+
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] text-red-700">{error}</div>
+        )}
+
+        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <h2 className="mb-3 font-semibold text-slate-800">기록 추가</h2>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <input placeholder="학생 이름 *" value={studentName} onChange={(e) => setStudentName(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+          <input placeholder="과목" value={subject} onChange={(e) => setSubject(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+          <input placeholder="오답 번호 (예: 3,5,7)" value={wrongNumbers} onChange={(e) => setWrongNumbers(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+          <input placeholder="질문 번호 (예: 10,12)" value={questionNumbers} onChange={(e) => setQuestionNumbers(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+          <textarea placeholder="메모" value={memo} onChange={(e) => setMemo(e.target.value)} className="rounded-lg border border-slate-200 px-3 py-2 text-[14px] sm:col-span-2" />
+        </div>
+
+        <button onClick={handleAddRecord} disabled={saving} className="mt-4 rounded-full border border-slate-300 bg-white px-5 py-2 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
           {saving ? "저장 중..." : "기록 추가"}
         </button>
-      </section>
+        </section>
 
-      {/* 기록 목록 + 오답번호 엑셀 내보내기 */}
-      <section className="bg-white border rounded-xl p-4 shadow-sm">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="font-semibold">기록 목록</h2>
-          <button
-            onClick={handleExportCsv}
-            className="text-xs border px-3 py-1.5 rounded-full"
-          >
-            학생별 오답번호 행렬 엑셀 내보내기
+        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <h2 className="font-semibold text-slate-800">기록 목록</h2>
+          <button onClick={handleExportCsv} className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 transition hover:bg-slate-50 sm:text-xs">
+            엑셀 내보내기
           </button>
         </div>
 
         {loading ? (
-          <p className="text-sm text-slate-400">불러오는 중...</p>
+          <p className="text-[13px] text-slate-500">불러오는 중...</p>
         ) : records.length === 0 ? (
-          <p className="text-sm text-slate-400">
-            아직 기록이 없습니다. 위에서 먼저 기록을 추가해 주세요.
-          </p>
+          <p className="text-[13px] text-slate-500">기록 없음. 위에서 추가해 주세요.</p>
         ) : (
-          <div className="flex flex-col gap-2 text-sm">
+          <div className="flex flex-col gap-2">
             {records.map((r) => (
-              <div
-                key={r.id}
-                className="bg-slate-50 border rounded px-3 py-2"
-              >
-                <div className="font-semibold">{r.studentName}</div>
+              <div key={r.id} className="rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-[13px]">
+                <div className="font-semibold text-slate-900">{r.studentName}</div>
                 <div className="text-xs text-slate-600">
                   날짜: {r.date || "-"} · 과목: {r.subject || "-"}
                 </div>
@@ -352,19 +313,14 @@ export default function StudentManageRecordsPage() {
         )}
       </section>
 
-      {/* 질문 번호 통계 */}
-      <section className="bg-white border rounded-xl p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">질문 번호 통계</h2>
-          <p className="text-xs text-slate-400">
-            질문 번호 기준으로 등장 횟수와 학생들 정리.
-          </p>
+        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="mb-3">
+          <h2 className="font-semibold text-slate-800">질문 번호 통계</h2>
+          <p className="text-[11px] text-slate-500">등장 횟수·학생 정리</p>
         </div>
 
         {questionStats.length === 0 ? (
-          <p className="text-sm text-slate-400">
-            질문 번호가 입력된 기록이 아직 없습니다.
-          </p>
+          <p className="text-[13px] text-slate-500">질문 번호 기록 없음</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="min-w-full text-left text-xs">
@@ -395,7 +351,8 @@ export default function StudentManageRecordsPage() {
             </table>
           </div>
         )}
-      </section>
-    </div>
+        </section>
+      </div>
+    </main>
   );
 }

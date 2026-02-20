@@ -1,14 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 
-type VideoEntry = {
-  id: string;
-  book: string;
-  number: string;
-  title: string;
-  url: string;
-};
+type VideoEntry = { id: string; book: string; number: string; title: string; url: string };
 
 export default function QnaPage() {
   const [studentName, setStudentName] = useState("");
@@ -21,305 +16,99 @@ export default function QnaPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setResults([]);
     setSearched(false);
     setErrorMsg("");
-
     if (!book.trim() || !number.trim()) {
       setErrorMsg("교재와 문제 번호를 모두 입력해주세요.");
       return;
     }
-
     setLoading(true);
-
     try {
       const res = await fetch("/api/qna/videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ book, number }),
       });
-
       const data = await res.json();
-
-      if (!res.ok) {
-        setErrorMsg(data.error ?? "영상 조회 중 오류가 발생했습니다.");
-      } else {
+      if (!res.ok) setErrorMsg(data.error ?? "영상 조회 중 오류");
+      else {
         setResults(data.videos ?? []);
         setSearched(true);
       }
-    } catch (err) {
-      console.error(err);
-      setErrorMsg("서버와 통신 중 오류가 발생했습니다.");
+    } catch {
+      setErrorMsg("서버 통신 오류");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={containerStyle}>
-      <h1 style={titleStyle}>질문 QnA · 노션 영상 연동</h1>
+    <main className="min-h-[80vh] overflow-x-hidden bg-white px-3 py-8 sm:px-4 sm:py-10 sm:py-12" style={{ fontFamily: "var(--font-outfit)" }}>
+      <div className="mx-auto max-w-5xl space-y-6">
+        <Link
+          href="/student-manage"
+          className="mb-2 inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-2 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 sm:text-[14px]"
+        >
+          <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          뒤로가기
+        </Link>
+        <header>
+          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">질문 / Q&A</h1>
+          <p className="mt-1 text-[12px] text-slate-600 sm:text-[13px]">노션 DB 연동 영상 검색</p>
+        </header>
 
-      {/* 입력 폼 */}
-      <form onSubmit={handleSubmit} style={formStyle}>
-        <div style={rowStyle}>
-          <div style={fieldStyle}>
-            <label style={labelStyle}>학생 이름 (선택)</label>
-            <input
-              style={inputStyle}
-              placeholder="예) 김지호"
-              value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
-            />
+        <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+            <div className="min-w-0 flex-1 sm:min-w-[180px] space-y-1">
+              <label className="block text-[12px] font-semibold text-slate-700">학생 이름 (선택)</label>
+              <input placeholder="예) 김지호" value={studentName} onChange={(e) => setStudentName(e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+            </div>
+            <div className="min-w-0 flex-1 sm:min-w-[180px] space-y-1">
+              <label className="block text-[12px] font-semibold text-slate-700">교재 / 키워드 <span className="text-red-500">*</span></label>
+              <input placeholder="예) 고쟁이, 쎈" value={book} onChange={(e) => setBook(e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+            </div>
+            <div className="min-w-0 flex-1 sm:min-w-[180px] space-y-1">
+              <label className="block text-[12px] font-semibold text-slate-700">문제 번호 <span className="text-red-500">*</span></label>
+              <input placeholder="예) 120" value={number} onChange={(e) => setNumber(e.target.value)} className="w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px]" />
+            </div>
           </div>
+          <button type="submit" disabled={loading} className="mt-4 rounded-full border border-slate-300 bg-white px-5 py-2 text-[13px] font-semibold text-slate-700 transition hover:bg-slate-50 disabled:opacity-60">
+            {loading ? "찾는 중..." : "영상 찾기"}
+          </button>
+        </form>
 
-          <div style={fieldStyle}>
-            <label style={labelStyle}>
-              교재 / 키워드<span style={requiredStyle}>*</span>
-            </label>
-            <input
-              style={inputStyle}
-              placeholder="예) 고쟁이, 쎈, 자이스토리"
-              value={book}
-              onChange={(e) => setBook(e.target.value)}
-            />
-          </div>
-
-          <div style={fieldStyle}>
-            <label style={labelStyle}>
-              문제 번호<span style={requiredStyle}>*</span>
-            </label>
-            <input
-              style={inputStyle}
-              placeholder="예) 120"
-              value={number}
-              onChange={(e) => setNumber(e.target.value)}
-            />
-          </div>
-        </div>
-
-        <button type="submit" style={submitButtonStyle} disabled={loading}>
-          {loading ? "영상 찾는 중..." : "영상 찾기"}
-        </button>
-      </form>
-
-      {/* 오류 메시지 */}
-      {errorMsg && (
-        <div style={errorBoxStyle}>
-          <p style={{ margin: 0, fontSize: 14 }}>{errorMsg}</p>
-        </div>
-      )}
-
-      {/* 결과 섹션 */}
-      <section style={sectionStyle}>
-        <h2 style={subtitleStyle}>결과</h2>
-
-        {!searched && !loading && !errorMsg && (
-          <p style={hintTextStyle}>
-            예) <strong>고쟁이</strong> / <strong>120</strong> 을 입력하면,
-            노션 DB에서 해당 교재·번호로 등록된 영상 링크를 찾아
-            아래에 보여줍니다.
-          </p>
+        {errorMsg && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-[13px] text-red-700">{errorMsg}</div>
         )}
 
-        {searched && !loading && results.length === 0 && !errorMsg && (
-          <div style={noResultBoxStyle}>
-            <p style={{ margin: 0, fontSize: 14 }}>
-              해당 교재 / 번호로 등록된 영상이 없습니다.
-              <br />
-              노션 DB의 교재/번호를 확인하거나, 영상을 새로 등록해주세요.
-            </p>
-          </div>
-        )}
-
-        {results.length > 0 && (
-          <div style={videoGridStyle}>
-            {results.map((v) => (
-              <article key={v.id} style={videoCardStyle}>
-                <h3 style={videoTitleStyle}>{v.title}</h3>
-
-                <div style={iframeWrapperStyle}>
-                  <iframe
-                    src={`/embed?url=${encodeURIComponent(v.url)}`}
-                    title={v.title}
-                    style={iframeStyle}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-
-                {studentName.trim() && (
-                  <p style={smallTextStyle}>
-                    조회 학생: <strong>{studentName}</strong>
-                  </p>
-                )}
-
-                <p style={smallTextStyle}>
-                  교재: <strong>{v.book || book}</strong> / 번호:{" "}
-                  <strong>{v.number || number}</strong>
-                </p>
-
-                <p style={smallTextStyle}>
-                  원본 링크:{" "}
-                  <a
-                    href={v.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ color: "#2563eb" }}
-                  >
-                    새 창에서 열기
-                  </a>
-                </p>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
-    </div>
+        <section>
+          <h2 className="mb-3 text-base font-semibold text-slate-800">결과</h2>
+          {!searched && !loading && !errorMsg && (
+            <p className="text-[12px] text-slate-600">예) 고쟁이 / 120 입력 시 노션 DB에서 해당 교재·번호 영상 검색</p>
+          )}
+          {searched && !loading && results.length === 0 && !errorMsg && (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3 text-[13px] text-slate-600">해당 교재·번호로 등록된 영상 없음. 노션 DB 확인 필요.</div>
+          )}
+          {results.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {results.map((v) => (
+                <article key={v.id} className="rounded-xl border border-slate-200 bg-white p-3">
+                  <h3 className="mb-2 text-[13px] font-semibold text-slate-900">{v.title}</h3>
+                  <div className="relative aspect-video overflow-hidden rounded-lg">
+                    <iframe src={`/embed?url=${encodeURIComponent(v.url)}`} title={v.title} className="absolute inset-0 h-full w-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                  </div>
+                  {studentName.trim() && <p className="mt-2 text-[11px] text-slate-600">학생: {studentName}</p>}
+                  <p className="text-[11px] text-slate-600">교재: {v.book || book} / 번호: {v.number || number}</p>
+                  <a href={v.url} target="_blank" rel="noopener noreferrer" className="mt-1 block text-[11px] font-medium text-slate-700 hover:underline">새 창에서 열기</a>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
   );
 }
-
-/** ---- 인라인 스타일 ---- */
-
-const containerStyle: React.CSSProperties = {
-  maxWidth: "960px",
-  margin: "0 auto",
-  padding: "24px 16px 48px",
-  fontFamily:
-    "system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-};
-
-const titleStyle: React.CSSProperties = {
-  fontSize: 24,
-  fontWeight: 700,
-  marginBottom: 24,
-};
-
-const subtitleStyle: React.CSSProperties = {
-  fontSize: 18,
-  fontWeight: 600,
-  marginBottom: 12,
-};
-
-const formStyle: React.CSSProperties = {
-  border: "1px solid #e5e7eb",
-  borderRadius: 12,
-  padding: 16,
-  marginBottom: 24,
-  backgroundColor: "#fafafa",
-};
-
-const rowStyle: React.CSSProperties = {
-  display: "flex",
-  gap: 16,
-  flexWrap: "wrap",
-};
-
-const fieldStyle: React.CSSProperties = {
-  flex: 1,
-  minWidth: 180,
-  display: "flex",
-  flexDirection: "column",
-  marginBottom: 12,
-};
-
-const labelStyle: React.CSSProperties = {
-  fontSize: 13,
-  fontWeight: 600,
-  marginBottom: 4,
-};
-
-const requiredStyle: React.CSSProperties = {
-  color: "#ef4444",
-  marginLeft: 4,
-};
-
-const inputStyle: React.CSSProperties = {
-  border: "1px solid #d1d5db",
-  borderRadius: 8,
-  padding: "8px 10px",
-  fontSize: 14,
-};
-
-const submitButtonStyle: React.CSSProperties = {
-  marginTop: 8,
-  padding: "8px 16px",
-  borderRadius: 999,
-  border: "none",
-  fontSize: 14,
-  fontWeight: 600,
-  cursor: "pointer",
-  backgroundColor: "#2563eb",
-  color: "white",
-};
-
-const sectionStyle: React.CSSProperties = {
-  marginTop: 16,
-};
-
-const hintTextStyle: React.CSSProperties = {
-  fontSize: 13,
-  color: "#6b7280",
-};
-
-const errorBoxStyle: React.CSSProperties = {
-  borderRadius: 12,
-  border: "1px solid #fee2e2",
-  backgroundColor: "#fef2f2",
-  padding: 12,
-  fontSize: 14,
-  color: "#991b1b",
-  marginTop: 8,
-};
-
-const noResultBoxStyle: React.CSSProperties = {
-  borderRadius: 12,
-  border: "1px solid #e5e7eb",
-  backgroundColor: "#f9fafb",
-  padding: 12,
-  fontSize: 14,
-  color: "#4b5563",
-};
-
-const videoGridStyle: React.CSSProperties = {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: 16,
-};
-
-const videoCardStyle: React.CSSProperties = {
-  borderRadius: 12,
-  border: "1px solid #e5e7eb",
-  padding: 12,
-  backgroundColor: "white",
-};
-
-const videoTitleStyle: React.CSSProperties = {
-  fontSize: 14,
-  fontWeight: 600,
-  margin: "0 0 8px",
-};
-
-const iframeWrapperStyle: React.CSSProperties = {
-  position: "relative",
-  width: "100%",
-  paddingBottom: "56.25%", // 16:9
-  borderRadius: 8,
-  overflow: "hidden",
-  marginBottom: 8,
-};
-
-const iframeStyle: React.CSSProperties = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  width: "100%",
-  height: "100%",
-  border: "none",
-};
-
-const smallTextStyle: React.CSSProperties = {
-  fontSize: 12,
-  color: "#4b5563",
-  margin: "2px 0",
-};

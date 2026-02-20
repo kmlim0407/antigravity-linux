@@ -1,12 +1,12 @@
 // app/api/qna/route.ts
 import { NextRequest, NextResponse } from "next/server";
 
-const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const notionToken = process.env.NOTION_API_KEY || process.env.NOTION_TOKEN;
 const NOTION_QNA_DB_ID = process.env.NOTION_QNA_DB_ID;
 
 export async function POST(req: NextRequest) {
   try {
-    if (!NOTION_TOKEN || !NOTION_QNA_DB_ID) {
+    if (!notionToken || !NOTION_QNA_DB_ID) {
       console.error("Missing Notion env");
       return NextResponse.json(
         { ok: false, error: "서버 환경변수 설정 오류" },
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
     const res = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${NOTION_TOKEN}`,
+        Authorization: `Bearer ${notionToken}`,
         "Notion-Version": "2022-06-28",
         "Content-Type": "application/json",
       },

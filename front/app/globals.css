@@ -3,6 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --nav-height: 3.75rem;
 }
 
 @theme inline {
@@ -19,10 +20,29 @@
   }
 }
 
+html, body { overflow-x: hidden; }
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.snap-scroll-container {
+  height: calc(100vh - var(--nav-height));
+  height: calc(100dvh - var(--nav-height));
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+}
+.snap-section {
+  flex-shrink: 0;
+  min-height: calc(100vh - var(--nav-height));
+  min-height: calc(100dvh - var(--nav-height));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
 @keyframes wave-scroll {
@@ -31,4 +51,13 @@ body {
 }
 .animate-wave-scroll {
   animation: wave-scroll 2.2s linear infinite;
+}
+
+/* 네비 메뉴 확장 시 가로 스크롤바 숨김 (한 줄 유지) */
+.nav-scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.nav-scroll-hide::-webkit-scrollbar {
+  display: none;
 }

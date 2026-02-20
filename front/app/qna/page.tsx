@@ -60,7 +60,7 @@ export default function QnaPage() {
   };
 
   return (
-    <main className="relative min-h-screen bg-slate-50 text-slate-900">
+    <main className="relative min-h-screen overflow-x-hidden bg-slate-50 text-slate-900">
       {/* ===== 전체 배경에 은은한 무늬/그라데이션 ===== */}
       <div className="pointer-events-none absolute inset-0 -z-10">
         {/* 아주 연한 원형 그라데이션들 */}

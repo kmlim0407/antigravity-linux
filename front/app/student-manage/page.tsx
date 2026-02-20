@@ -1,97 +1,87 @@
 import Link from "next/link";
 
 const STUDENT_MANAGE_CARDS = [
-  { label: "학생 성취도", href: "/student", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&q=80" },
-  { label: "질문 / Q&A", href: "/student-manage/qna", image: "https://images.unsplash.com/photo-1516541196182-6bdb0516ed27?w=400&q=80" },
-  { label: "오답 / 기록", href: "/student-manage/records", image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=400&q=80" },
+  {
+    label: "학생 성취도",
+    desc: "학생별 학습 진도·성취도를 한눈에 확인하고 개별 맞춤 관리를 진행할 수 있습니다.",
+    bullets: ["캘린더 기반 진도 확인", "개별 학생 상세 페이지", "성적·활동 이력 조회"],
+    href: "/student",
+    icon: "📊",
+  },
+  {
+    label: "질문 / Q&A",
+    desc: "교재명과 문제 번호로 노션 DB에 등록된 풀이 영상을 검색하고 바로 시청할 수 있습니다.",
+    bullets: ["교재·문제번호로 영상 검색", "노션 DB 실시간 연동", "학생별 질문 이력 추적"],
+    href: "/student-manage/qna",
+    icon: "🎬",
+  },
+  {
+    label: "오답 / 기록",
+    desc: "학생별 오답·질문을 입력해 노션에 저장하고, 통계 확인 및 엑셀 행렬 내보내기가 가능합니다.",
+    bullets: ["오답·질문 기록 입력", "질문번호별 통계", "학생별 행렬 엑셀 내보내기"],
+    href: "/student-manage/records",
+    icon: "📋",
+  },
 ];
-
-const CARD_GRADIENTS = [
-  "radial-gradient(circle at top left, rgba(59,130,246,0.20), transparent 55%), radial-gradient(circle at bottom right, rgba(56,189,248,0.18), transparent 55%)",
-  "radial-gradient(circle at top left, rgba(168,85,247,0.20), transparent 55%), radial-gradient(circle at bottom right, rgba(236,72,153,0.18), transparent 55%)",
-  "radial-gradient(circle at top left, rgba(251,146,60,0.22), transparent 55%), radial-gradient(circle at bottom right, rgba(234,179,8,0.18), transparent 55%)",
-];
-
-// 상단 탭 UI
-function StudentTabs(props: { active: "qna" | "records" }) {
-  const { active } = props;
-  const base =
-    "flex-1 whitespace-nowrap rounded-lg border px-3 py-2 text-center text-xs md:text-sm transition";
-  const inactive =
-    "border-neutral-300 bg-white text-neutral-600 hover:bg-neutral-100";
-  const activeClass = "border-neutral-900 bg-neutral-900 text-white";
-
-  return (
-    <div className="mb-4 flex gap-2 overflow-x-auto">
-      <a
-        href="/student-manage/qna"
-        className={base + " " + (active === "qna" ? activeClass : inactive)}
-      >
-        질문 / Q&amp;A
-      </a>
-      <a
-        href="/student-manage/records"
-        className={
-          base + " " + (active === "records" ? activeClass : inactive)
-        }
-      >
-        오답 / 기록
-      </a>
-    </div>
-  );
-}
 
 export default function StudentManagePage() {
   return (
-    <main className="min-h-[80vh] bg-neutral-100 px-4 py-10">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-2xl md:text-3xl font-semibold text-neutral-900">
-            학생관리
-          </h1>
-          <a
-            href="/makeup"
-            style={{
-              display: "inline-block",
-              padding: "10px 16px",
-              marginBottom: "16px",
-              borderRadius: "8px",
-              border: "1px solid #222",
-              textDecoration: "none",
-              fontSize: "14px",
-              fontWeight: 600,
-            }}
-          >
-            📅 보강 예약 하러 가기
-          </a>
-          <p className="text-xs md:text-sm text-neutral-600">
-            임경묵T가 내부에서만 보는 페이지입니다.
+    <main className="min-h-[80vh] overflow-x-hidden bg-white px-3 py-8 sm:px-4 sm:py-10 sm:py-12" style={{ fontFamily: "var(--font-outfit)" }}>
+      <div className="mx-auto max-w-5xl min-w-0 space-y-6 sm:space-y-8">
+        <header className="space-y-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">학생관리</h1>
+            <span className="inline-block mt-2 rounded-md bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600">내부전용</span>
+          </div>
+          <p className="max-w-2xl text-[12px] leading-relaxed text-slate-600 sm:text-[14px]">
+            <span className="block sm:hidden">성취도·Q&A·오답 기록 통합 관리.</span>
+            <span className="hidden sm:block">학생별 성취도 확인, 질문·Q&A 영상 검색, 오답·질문 기록을 한곳에서 관리합니다. 노션 DB와 실시간 연동되며, 엑셀 내보내기·통계 조회가 가능합니다.</span>
           </p>
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              href="/makeup"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 sm:text-[14px]"
+            >
+              보강 예약
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </Link>
+          </div>
         </header>
 
 
-        {/* 메인 카드 섹션 */}
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-3 sm:gap-6">
-          {STUDENT_MANAGE_CARDS.map((card, i) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-neutral-200/60 bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-neutral-300/80 hover:shadow-lg"
-              style={{ backgroundImage: CARD_GRADIENTS[i % CARD_GRADIENTS.length], backgroundBlendMode: "soft-light" }}
-            >
-              <div className="relative aspect-[4/3] w-full overflow-hidden rounded-t-2xl">
-                <img src={card.image} alt={card.label} className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-white/90 via-transparent to-transparent" />
-              </div>
-              <div className="flex flex-1 items-center justify-center px-4 py-4">
-                <span className="text-center text-[15px] font-medium tracking-tight text-slate-800 sm:text-[17px]">{card.label}</span>
-              </div>
-            </Link>
-          ))}
+        <section className="space-y-4">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500">기능 선택</h2>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-6">
+            {STUDENT_MANAGE_CARDS.map((card) => (
+              <Link
+                key={card.href}
+                href={card.href}
+                className="group flex flex-col rounded-xl border border-slate-200 bg-slate-50/30 p-4 transition sm:p-6 hover:-translate-y-0.5 hover:border-slate-300 hover:bg-white hover:shadow-md"
+              >
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-lg bg-white text-xl shadow-sm ring-1 ring-slate-200/60 group-hover:ring-slate-300">
+                  {card.icon}
+                </div>
+                <h3 className="mb-2 text-base font-semibold text-slate-900">{card.label}</h3>
+                <p className="mb-4 text-[13px] leading-relaxed text-slate-600">{card.desc}</p>
+                <ul className="space-y-1.5 border-t border-slate-200/80 pt-3 text-[12px] text-slate-500">
+                  {card.bullets.map((b) => (
+                    <li key={b} className="flex items-center gap-2">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-slate-300" />
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+                <span className="mt-4 inline-flex items-center gap-1 text-[13px] font-medium text-slate-600 group-hover:text-slate-800">
+                  이동
+                  <svg className="h-4 w-4 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </Link>
+            ))}
+          </div>
         </section>
 
-        {/* 탭 */}
-        <StudentTabs active="qna" />
       </div>
     </main>
   );

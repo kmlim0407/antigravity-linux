@@ -13,7 +13,7 @@ const sectionFadeUp = {
 
 export default function StudentsPage() {
   return (
-    <main className="min-h-screen bg-black text-white">
+    <main className="min-h-screen overflow-x-hidden bg-black text-white">
       {/* HERO – 학생 전용 인트로 */}
       <section className="relative flex min-h-[70vh] flex-col items-center justify-center overflow-hidden px-4 pt-20 md:px-10 md:pt-24">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(148,163,184,0.45),transparent_55%),radial-gradient(circle_at_bottom,_rgba(30,64,175,0.6),transparent_65%)] opacity-70" />

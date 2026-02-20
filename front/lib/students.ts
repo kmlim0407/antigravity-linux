@@ -8,12 +8,17 @@ export type Student = {
 
 // 여기 명단만 수정해서 쓰면 됨
 export const students: Student[] = [
-  { id: "kim-jiho", name: "김지호", password: "1234" },
-  { id: "go-sua", name: "고수아", password: "2345" },
-  { id: "shin-yeonwoo", name: "신연우", password: "3456" },
-  { id: "lee-dongeun", name: "이동은", password: "4567" },
-  { id: "shin-seunghyo", name: "신승효", password: "5678" },
-  // 필요하면 아래로 계속 추가
+  { id: "shin-yeonwoo", name: "신연우", password: "7294" },
+  { id: "go-sua", name: "고수아", password: "5831" },
+  { id: "kim-jiho", name: "김지호", password: "4167" },
+  { id: "shin-seunghyo", name: "신승효", password: "9620" },
+  { id: "lee-dongeun", name: "이동은", password: "3458" },
+  { id: "lee-seongyoon", name: "이성윤", password: "8102" },
+  { id: "yu-haeun", name: "유하은", password: "2579" },
+  { id: "kim-taegyu", name: "김태규", password: "6943" },
+  { id: "kim-taein", name: "김태인", password: "1385" },
+  { id: "kim-naeun", name: "김나은", password: "4716" },
+  { id: "kim-yeonwoo", name: "김연우", password: "9032" },
 ];
 
 export function findStudentById(id: string): Student | undefined {
