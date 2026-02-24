@@ -192,13 +192,13 @@ export default function YouTubePlayerCustomControls({ videoId }: { videoId: stri
         <div id={playerId} className="absolute inset-0 h-full w-full [&_iframe]:border-0" />
       </div>
       <div
-        className="flex flex-shrink-0 items-center gap-1.5 bg-white px-2 py-2"
+        className="flex flex-shrink-0 items-center gap-1.5 bg-white px-2 py-2 dark:bg-slate-900"
         style={{ fontFamily: "var(--font-outfit)" }}
       >
         <button
           type="button"
           onClick={togglePlay}
-          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-100"
+          className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-700 transition hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"
           aria-label={isPlaying ? "일시정지" : "재생"}
         >
           {isPlaying ? (
@@ -215,7 +215,7 @@ export default function YouTubePlayerCustomControls({ videoId }: { videoId: stri
           <svg
             viewBox={`0 0 ${W} ${H}`}
             preserveAspectRatio="none"
-            className="h-6 w-full cursor-pointer"
+            className="h-6 w-full cursor-pointer dark:invert"
             onClick={handleBarClick}
             role="slider"
             aria-label="재생 위치"
@@ -264,7 +264,7 @@ export default function YouTubePlayerCustomControls({ videoId }: { videoId: stri
             />
           </svg>
         </div>
-        <span className="shrink-0 text-xs tabular-nums text-slate-600">
+        <span className="shrink-0 text-xs tabular-nums text-slate-600 dark:text-slate-400">
           {formatTime(currentTime)}
         </span>
       </div>

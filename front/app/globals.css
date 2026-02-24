@@ -4,6 +4,11 @@
   --background: #ffffff;
   --foreground: #171717;
   --nav-height: 3.75rem;
+  --surface: #f8fafc;        /* slate-50 */
+  --surface-2: #f1f5f9;      /* slate-100 */
+  --border: #e2e8f0;         /* slate-200 */
+  --border-2: #cbd5e1;       /* slate-300 */
+  --text-muted: #64748b;     /* slate-500 */
 }
 
 @theme inline {
@@ -13,14 +18,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+/* dark mode disabled — light only */
+@variant dark (&:where(.dark, .dark *));
 
-html, body { overflow-x: hidden; }
+html, body {
+  overflow-x: hidden;
+  height: 100%;
+}
 body {
   background: var(--background);
   color: var(--foreground);
@@ -29,20 +33,19 @@ body {
 
 .snap-scroll-container {
   height: calc(100vh - var(--nav-height));
-  height: calc(100dvh - var(--nav-height));
+  height: calc(100dvh - var(--nav-height) - env(safe-area-inset-bottom, 0px));
   overflow-x: hidden;
-  overflow-y: auto;
+  overflow-y: scroll;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 .snap-section {
   flex-shrink: 0;
   min-height: calc(100vh - var(--nav-height));
-  min-height: calc(100dvh - var(--nav-height));
+  min-height: calc(100dvh - var(--nav-height) - env(safe-area-inset-bottom, 0px));
   scroll-snap-align: start;
-  scroll-snap-stop: always;
 }
 
 @keyframes wave-scroll {

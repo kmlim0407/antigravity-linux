@@ -1,30 +1,27 @@
-// app/api/qna/route.ts
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { handleApiError, ApiError } from "@/lib/api-error";
 
 const notionToken = process.env.NOTION_API_KEY || process.env.NOTION_TOKEN;
 const NOTION_QNA_DB_ID = process.env.NOTION_QNA_DB_ID;
 
+const BodySchema = z.object({
+  studentName: z.string().min(1, "학생 이름을 입력해주세요.").max(20),
+  book: z.string().max(100).optional().default(""),
+  page: z.number().int().positive().optional(),
+  number: z.number().int().positive().optional(),
+  content: z.string().max(2000).optional().default(""),
+});
+
 export async function POST(req: NextRequest) {
   try {
     if (!notionToken || !NOTION_QNA_DB_ID) {
-      console.error("Missing Notion env");
-      return NextResponse.json(
-        { ok: false, error: "서버 환경변수 설정 오류" },
-        { status: 500 }
-      );
+      throw new ApiError(500, "서버 환경변수 설정 오류");
     }
 
     const body = await req.json();
+    const { studentName, book, page, number, content } = BodySchema.parse(body);
 
-    const {
-      studentName, // 학생 이름
-      book,        // 교재 이름
-      page,        // 페이지
-      number,      // 문제 번호
-      content,     // 질문 내용
-    } = body;
-
-    // Notion 페이지 생성 요청
     const res = await fetch("https://api.notion.com/v1/pages", {
       method: "POST",
       headers: {
@@ -35,37 +32,16 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         parent: { database_id: NOTION_QNA_DB_ID },
         properties: {
-          // ⬇⬇⬇ 여기부터는 네가 만든 Notion DB 속성 이름에 맞게 수정하면 됨
           이름: {
-            title: [
-              {
-                text: { content: studentName || "이름 없음" },
-              },
-            ],
+            title: [{ text: { content: studentName } }],
           },
           교재: {
-            rich_text: [
-              {
-                text: { content: book || "" },
-              },
-            ],
+            rich_text: [{ text: { content: book } }],
           },
-          페이지: page
-            ? {
-                number: Number(page),
-              }
-            : undefined,
-          번호: number
-            ? {
-                number: Number(number),
-              }
-            : undefined,
+          ...(page !== undefined && { 페이지: { number: page } }),
+          ...(number !== undefined && { 번호: { number: number } }),
           질문내용: {
-            rich_text: [
-              {
-                text: { content: content || "" },
-              },
-            ],
+            rich_text: [{ text: { content: content } }],
           },
         },
       }),
@@ -74,18 +50,11 @@ export async function POST(req: NextRequest) {
     if (!res.ok) {
       const text = await res.text();
       console.error("Notion error:", text);
-      return NextResponse.json(
-        { ok: false, error: "Notion 요청 에러" },
-        { status: 500 }
-      );
+      throw new ApiError(500, "Notion 요청 에러");
     }
 
     return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error(err);
-    return NextResponse.json(
-      { ok: false, error: "알 수 없는 서버 오류" },
-      { status: 500 }
-    );
+    return handleApiError(err);
   }
 }

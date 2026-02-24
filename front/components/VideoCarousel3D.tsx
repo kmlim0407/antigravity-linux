@@ -201,7 +201,7 @@ export default function VideoCarousel3D({ videos, variant = "horizontal" }: { vi
       <button
         type="button"
         onClick={() => goTo(-1)}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 sm:h-14 sm:w-14"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 sm:h-14 sm:w-14"
         aria-label="이전 영상"
       >
         {isVertical ? arrowUp : arrowLeft}
@@ -234,7 +234,7 @@ export default function VideoCarousel3D({ videos, variant = "horizontal" }: { vi
               ...(isVertical ? { y: direction > 0 ? -60 : 60 } : { x: direction > 0 ? -60 : 60 }),
             }}
             transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className={`relative w-full overflow-hidden rounded-xl border-2 border-slate-200 bg-slate-900 shadow-2xl ${isVertical ? "aspect-square" : "aspect-video"}`}
+            className={`relative w-full overflow-hidden rounded-xl border-2 border-slate-200 bg-slate-900 shadow-2xl dark:border-slate-700 ${isVertical ? "aspect-square" : "aspect-video"}`}
           >
             <img
               src={`https://i.ytimg.com/vi/${video.id}/maxresdefault.jpg`}
@@ -323,7 +323,7 @@ export default function VideoCarousel3D({ videos, variant = "horizontal" }: { vi
       <button
         type="button"
         onClick={() => goTo(1)}
-        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 sm:h-14 sm:w-14"
+        className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-300 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 sm:h-14 sm:w-14"
         aria-label="다음 영상"
       >
         {isVertical ? arrowDown : arrowRight}

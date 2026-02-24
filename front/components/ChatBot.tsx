@@ -60,7 +60,7 @@ export default function ChatBot() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="flex h-10 w-10 items-center justify-center rounded-full text-slate-800 transition-all hover:scale-105 hover:bg-slate-100"
+        className="flex h-10 w-10 items-center justify-center rounded-full text-slate-800 transition-all hover:scale-105 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
         aria-label="챗봇 열기"
       >
         <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -85,7 +85,7 @@ export default function ChatBot() {
             />
             <div className="fixed inset-0 z-[9999] flex items-center justify-center p-6">
               <motion.div
-                className="flex h-[min(700px,90vh)] w-full max-w-[480px] flex-col overflow-hidden rounded-3xl bg-white shadow-[0_25px_80px_-12px_rgba(0,0,0,0.3)]"
+                className="flex h-[min(700px,90vh)] w-full max-w-[480px] flex-col overflow-hidden rounded-3xl bg-white shadow-[0_25px_80px_-12px_rgba(0,0,0,0.3)] dark:bg-slate-900 dark:shadow-[0_25px_80px_-12px_rgba(0,0,0,0.6)]"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -93,9 +93,9 @@ export default function ChatBot() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* 헤더 - 모던 미니멀 */}
-              <div className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-slate-50/80 px-5 py-4 backdrop-blur-sm">
+              <div className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-slate-50/80 px-5 py-4 backdrop-blur-sm dark:border-slate-700 dark:bg-slate-800/80">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-900 dark:bg-slate-700">
                     <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2z" fill="currentColor" />
                       <circle cx="8" cy="11" r="1" fill="white" />
@@ -104,14 +104,14 @@ export default function ChatBot() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-[15px] font-semibold text-slate-900">챗봇</p>
-                    <p className="text-[11px] text-slate-500">온라인</p>
+                    <p className="text-[15px] font-semibold text-slate-900 dark:text-slate-100">챗봇</p>
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400">온라인</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700"
+                  className="flex h-9 w-9 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-slate-200 hover:text-slate-700 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300"
                   aria-label="닫기"
                 >
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,7 +123,7 @@ export default function ChatBot() {
               {/* 대화 영역 */}
               <div
                 ref={scrollRef}
-                className="min-h-0 flex-1 overflow-y-auto bg-slate-50/50 p-5"
+                className="min-h-0 flex-1 overflow-y-auto bg-slate-50/50 p-5 dark:bg-slate-900/50"
               >
                 <div className="mx-auto max-w-md space-y-4">
                   {messages.map((m, i) => (
@@ -134,8 +134,8 @@ export default function ChatBot() {
                       <div
                         className={`max-w-[85%] rounded-2xl px-4 py-3 text-[14px] leading-[1.6] ${
                           m.role === "user"
-                            ? "bg-slate-900 text-white shadow-sm"
-                            : "bg-white text-slate-800 shadow-sm ring-1 ring-slate-200/60"
+                            ? "bg-slate-900 text-white shadow-sm dark:bg-slate-700"
+                            : "bg-white text-slate-800 shadow-sm ring-1 ring-slate-200/60 dark:bg-slate-800 dark:text-slate-200 dark:ring-slate-600/60"
                         }`}
                       >
                         <pre className="whitespace-pre-wrap font-sans text-[14px]">{m.content}</pre>
@@ -144,7 +144,7 @@ export default function ChatBot() {
                   ))}
                   {loading && (
                     <div className="flex justify-start">
-                      <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/60">
+                      <div className="rounded-2xl bg-white px-4 py-3 shadow-sm ring-1 ring-slate-200/60 dark:bg-slate-800 dark:ring-slate-600/60">
                         <span className="inline-flex gap-1.5">
                           <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
                           <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
@@ -162,7 +162,7 @@ export default function ChatBot() {
                   e.preventDefault();
                   send();
                 }}
-                className="shrink-0 border-t border-slate-100 bg-white p-4"
+                className="shrink-0 border-t border-slate-100 bg-white p-4 dark:border-slate-700 dark:bg-slate-900"
               >
                 <div className="flex gap-3">
                   <input
@@ -170,7 +170,7 @@ export default function ChatBot() {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="메시지를 입력하세요"
-                    className="flex-1 rounded-2xl border-0 bg-slate-100 px-4 py-3.5 text-[14px] outline-none transition-colors placeholder:text-slate-400 focus:bg-slate-200/80 focus:ring-2 focus:ring-slate-300/50"
+                    className="flex-1 rounded-2xl border-0 bg-slate-100 px-4 py-3.5 text-[14px] text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:bg-slate-200/80 focus:ring-2 focus:ring-slate-300/50 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:bg-slate-700/80 dark:focus:ring-slate-600/50"
                     disabled={loading}
                   />
                   <button

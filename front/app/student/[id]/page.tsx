@@ -238,19 +238,33 @@ export default function StudentDetailPage({ params }: PageProps) {
   const [step, setStep] = useState<"password" | "form">("password");
   const [inputPassword, setInputPassword] = useState("");
   const [error, setError] = useState("");
+  const [isVerifying, setIsVerifying] = useState(false);
   const [calendarMonth, setCalendarMonth] = useState(() => new Date());
 
   useEffect(() => {
     setCalendarMonth(new Date());
   }, []);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputPassword === student?.password) {
-      setStep("form");
-      setError("");
-    } else {
-      setError("비밀번호 오류");
+    setIsVerifying(true);
+    setError("");
+    try {
+      const res = await fetch("/api/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentId: id, password: inputPassword }),
+      });
+      if (res.ok) {
+        setStep("form");
+      } else {
+        const data = await res.json();
+        setError(data.error ?? "비밀번호 오류");
+      }
+    } catch {
+      setError("서버 오류가 발생했습니다.");
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -313,9 +327,10 @@ export default function StudentDetailPage({ params }: PageProps) {
           {error && <p className="mb-2 text-sm text-red-500">{error}</p>}
           <button
             type="submit"
-            className="w-full rounded-lg border bg-blue-50 py-3 min-h-[44px] text-base font-semibold shadow-sm hover:bg-blue-100 active:bg-blue-200 touch-manipulation"
+            disabled={isVerifying}
+            className="w-full rounded-lg border bg-blue-50 py-3 min-h-[44px] text-base font-semibold shadow-sm hover:bg-blue-100 active:bg-blue-200 touch-manipulation disabled:opacity-60"
           >
-            입장하기
+            {isVerifying ? "확인 중..." : "입장하기"}
           </button>
         </form>
         <button

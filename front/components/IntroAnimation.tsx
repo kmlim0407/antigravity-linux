@@ -89,10 +89,10 @@ export default function IntroAnimation() {
 
   return (
     <div
-      className={`fixed inset-0 z-[100] flex items-center justify-center bg-white transition-opacity duration-300 ${showing ? "opacity-100" : "opacity-0"}`}
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-white dark:bg-slate-950 transition-opacity duration-300 ${showing ? "opacity-100" : "opacity-0"}`}
       style={{ fontFamily: "var(--font-outfit)" }}
     >
-      <div className="flex w-full justify-center items-baseline gap-2 text-5xl font-medium uppercase tracking-tight text-black sm:text-6xl md:text-7xl lg:text-8xl">
+      <div className="flex w-full justify-center items-baseline gap-2 text-5xl font-medium uppercase tracking-tight text-black dark:text-white sm:text-6xl md:text-7xl lg:text-8xl">
         {/* 1~2단계: SMOOKTH만 또는 SMOOKTH + : */}
         {phase === "smookth" && (
           <motion.span
@@ -147,7 +147,7 @@ export default function IntroAnimation() {
               <motion.span
                 layout
                 layoutId="A"
-                className="inline-block min-w-[0.5em] border-b-2 border-black"
+                className="inline-block min-w-[0.5em] border-b-2 border-black dark:border-white"
               >
                 <AnimatePresence mode="wait" initial={false}>
                   {(phase === "roulette" || phase === "done" || phase === "fadeToMath") && (
@@ -200,7 +200,7 @@ export default function IntroAnimation() {
               {phase === "withSmookth" && (
                 <motion.span
                   key="with"
-                  className="ml-4 whitespace-nowrap text-xl font-medium normal-case tracking-wide text-slate-500 sm:text-2xl md:text-3xl"
+                  className="ml-4 whitespace-nowrap text-xl font-medium normal-case tracking-wide text-slate-500 dark:text-slate-400 sm:text-2xl md:text-3xl"
                   initial={{ opacity: 0, x: 10, scale: 0.97 }}
                   animate={{ opacity: 1, x: 0, scale: 1 }}
                   transition={{

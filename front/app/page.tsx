@@ -1,11 +1,140 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ContactModalTrigger } from "@/components/ContactModal";
 import YouTubePlayerCustomControls from "@/components/YouTubePlayerCustomControls";
 import VideoCarousel3D from "@/components/VideoCarousel3D";
 import ImLogicCarousel from "@/components/ImLogicCarousel";
+import { useSmoothSnapScroll } from "@/hooks/useSmoothSnapScroll";
+
+type ChatMessage = { role: "user" | "model"; content: string };
+
+function ChatSection() {
+  const [messages, setMessages] = useState<ChatMessage[]>([
+    { role: "model", content: "안녕하세요! SMOOKTH에 대해 궁금한 점을 편하게 물어보세요." },
+  ]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+  }, [messages]);
+
+  async function send() {
+    const text = input.trim();
+    if (!text || loading) return;
+    setInput("");
+    const next = [...messages, { role: "user" as const, content: text }];
+    setMessages(next);
+    setLoading(true);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: next.map((m) => ({ role: m.role, content: m.content })) }),
+      });
+      const data = await res.json();
+      setMessages((m) => [...m, { role: "model", content: res.ok ? data.text : (data.error || "오류가 발생했습니다.") }]);
+    } catch {
+      setMessages((m) => [...m, { role: "model", content: "통신 오류가 발생했습니다." }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <section className="snap-section relative flex w-full flex-col items-center justify-center bg-white px-4 py-6 sm:px-8 sm:py-10">
+      <div className="w-full max-w-xl">
+
+        {/* 헤더 */}
+        <div className="mb-4">
+          <h2
+            className="text-[20px] font-bold tracking-[-0.02em] text-slate-900 sm:text-[26px]"
+            style={{ fontFamily: "var(--font-outfit)" }}
+          >
+            Ask anything.
+          </h2>
+          <p className="mt-0.5 text-[12px] text-slate-400 sm:text-[13px]">
+            수업, 상담, 교재 — 무엇이든 바로 답해드립니다.
+          </p>
+        </div>
+
+        {/* 채팅 컨테이너 */}
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+
+          {/* 대화창 */}
+          <div
+            ref={scrollRef}
+            className="overflow-y-auto bg-slate-50 p-4"
+            style={{ height: "clamp(240px, calc(100dvh - var(--nav-height) - 14rem), 420px)" }}
+          >
+            <div className="space-y-2.5">
+              {messages.map((m, i) => (
+                <div key={i} className={`flex items-end gap-2 ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                  {m.role === "model" && (
+                    <div className="mb-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-slate-900 text-[9px] font-bold text-white">
+                      S
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[80%] rounded-xl px-3.5 py-2 text-[13px] leading-[1.6] ${
+                      m.role === "user"
+                        ? "rounded-br-sm bg-slate-900 text-white"
+                        : "rounded-bl-sm bg-white text-slate-800 shadow-sm ring-1 ring-slate-200/80"
+                    }`}
+                  >
+                    <pre className="whitespace-pre-wrap font-sans text-[13px]">{m.content}</pre>
+                  </div>
+                </div>
+              ))}
+              {loading && (
+                <div className="flex items-end gap-2">
+                  <div className="mb-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-slate-900 text-[9px] font-bold text-white">
+                    S
+                  </div>
+                  <div className="rounded-xl rounded-bl-sm bg-white px-3.5 py-2.5 shadow-sm ring-1 ring-slate-200/80">
+                    <span className="inline-flex gap-1">
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:-0.3s]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300 [animation-delay:-0.15s]" />
+                      <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-slate-300" />
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* 입력창 */}
+          <form
+            onSubmit={(e) => { e.preventDefault(); send(); }}
+            className="flex items-center gap-2 border-t border-slate-200 bg-white px-3 py-2.5"
+          >
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="메시지를 입력하세요"
+              disabled={loading}
+              className="flex-1 bg-transparent py-1 text-[13px] text-slate-900 outline-none placeholder:text-slate-400"
+            />
+            <button
+              type="submit"
+              disabled={loading || !input.trim()}
+              className="shrink-0 flex h-8 w-8 items-center justify-center rounded-lg bg-slate-900 text-white transition hover:bg-black disabled:opacity-30"
+              aria-label="전송"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 12h14M12 5l7 7-7 7" />
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // 유튜브 영상 ID만 넣기 (예: watch?v=abc123 → abc123)
 const YOUTUBE_VIDEO_ID = "SLaBGKGeveo";
@@ -19,6 +148,8 @@ const PLAYLIST_VIDEOS = [
 ];
 
 export default function HomePage() {
+  useSmoothSnapScroll();
+
   const [videoFullscreenOpen, setVideoFullscreenOpen] = useState(false);
   const [expandDone, setExpandDone] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -63,7 +194,7 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center gap-2 text-center sm:gap-5 lg:gap-6 xl:gap-10 2xl:gap-12">
             <p className="flex flex-col items-center gap-1.5 text-slate-900 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-x-8 lg:whitespace-nowrap text-[20px] font-bold leading-tight sm:text-[44px] md:text-[52px] lg:text-[72px] xl:text-[90px] 2xl:text-[100px]">
               <span className="tracking-[0.03em] lg:justify-self-end">BE LOGICAL</span>
-              <span className="font-bold text-slate-700 lg:justify-self-center">∩</span>
+              <span className="font-bold text-slate-700 lg:justify-self-center" style={{ fontFamily: "Georgia, 'Noto Serif KR', serif" }}>∩</span>
               <span className="tracking-[0.03em] lg:justify-self-start">BE TACTICAL</span>
             </p>
             <p className="max-w-2xl text-[13px] leading-relaxed text-slate-600 sm:text-[14px] md:text-[15px] lg:text-[17px] xl:text-[19px] 2xl:text-[20px]">
@@ -244,7 +375,7 @@ export default function HomePage() {
 
       {/* 3. 반별 수업영상 플레이리스트 */}
       <section id="playlist" className="snap-section relative flex min-h-screen w-full flex-col overflow-hidden bg-white">
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-y-auto px-3 py-6 sm:py-10 lg:py-24 xl:py-32 2xl:py-36">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center px-3 py-6 sm:py-10 lg:py-24 xl:py-32 2xl:py-36">
           <p className="mb-4 text-center text-xs font-medium uppercase tracking-[0.15em] text-slate-500 sm:text-sm xl:text-base 2xl:text-lg">
             수업 영상 둘러보기
           </p>
@@ -264,7 +395,7 @@ export default function HomePage() {
       </section>
 
       {/* 4. 상담 섹션 */}
-      <section id="contact-section" className="snap-section relative flex w-full flex-col items-center justify-center overflow-hidden bg-slate-50">
+      <section id="contact-section" className="snap-section relative flex w-full flex-col items-center justify-center overflow-hidden bg-white">
         <div className="relative z-10 w-full max-w-3xl px-4 py-12 sm:py-16 lg:py-20 xl:py-24 text-center">
           <h2 className="text-2xl font-bold text-slate-900 sm:text-3xl lg:text-4xl xl:text-5xl mb-6 sm:mb-8" style={{ fontFamily: "var(--font-outfit)" }}>
             상담 · 문의
@@ -272,22 +403,22 @@ export default function HomePage() {
           <ul className="space-y-3 sm:space-y-4 text-[14px] sm:text-[15px] lg:text-[16px] xl:text-[17px] text-slate-700 mb-8 sm:mb-10">
             <li className="flex items-center justify-center gap-2">
               <span className="text-slate-400">·</span>
-              <span>수업을 <strong className="text-slate-800">투명하게</strong> 보여드립니다. OT, 영상, 교재까지.</span>
+              <span>수업을 <strong className="text-slate-900">투명하게</strong> 보여드립니다. OT, 영상, 교재까지.</span>
             </li>
             <li className="flex items-center justify-center gap-2">
               <span className="text-slate-400">·</span>
-              <span><strong className="text-slate-800">모든 학생</strong>이 수업 가능합니다. 기초부터 심화까지.</span>
+              <span><strong className="text-slate-900">모든 학생</strong>이 수업 가능합니다. 기초부터 심화까지.</span>
             </li>
             <li className="flex items-center justify-center gap-2">
               <span className="text-slate-400">·</span>
-              <span>현재 성적·목표에 맞춘 <strong className="text-slate-800">맞춤 상담</strong>을 드립니다.</span>
+              <span>현재 성적·목표에 맞춘 <strong className="text-slate-900">맞춤 상담</strong>을 드립니다.</span>
             </li>
             <li className="flex items-center justify-center gap-2">
               <span className="text-slate-400">·</span>
-              <span>궁금한 점이 있으시면 언제든 <strong className="text-slate-800">문의</strong>해 주세요.</span>
+              <span>궁금한 점이 있으시면 언제든 <strong className="text-slate-900">문의</strong>해 주세요.</span>
             </li>
           </ul>
-          <ContactModalTrigger className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border-2 border-slate-700 bg-slate-800 px-8 py-3 text-[15px] font-semibold text-white transition hover:bg-slate-900 hover:border-slate-800 sm:text-[16px] lg:text-[17px]">
+          <ContactModalTrigger className="inline-flex min-h-[48px] items-center justify-center gap-2 rounded-xl border-2 border-slate-900 bg-slate-900 px-8 py-3 text-[15px] font-semibold text-white transition hover:bg-black hover:border-black sm:text-[16px] lg:text-[17px]">
             <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
@@ -295,6 +426,9 @@ export default function HomePage() {
           </ContactModalTrigger>
         </div>
       </section>
+
+      {/* 5. 챗봇 섹션 */}
+      <ChatSection />
     </div>
   );
 }

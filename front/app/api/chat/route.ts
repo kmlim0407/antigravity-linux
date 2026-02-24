@@ -1,117 +1,116 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  GoogleGenAI,
-  Type,
-  createPartFromFunctionCall,
-  createPartFromFunctionResponse,
-} from "@google/genai";
+import OpenAI from "openai";
+import { z } from "zod";
 import { getScheduleText } from "@/lib/schedule";
+import { handleApiError, ApiError } from "@/lib/api-error";
+import { checkRateLimit } from "@/lib/rate-limit";
 
-const CHAT_MODEL = "gemini-2.0-flash";
+const CHAT_MODEL = "gpt-4o-mini";
 
-const SYSTEM_PROMPT = `당신은 smookth 수학 사이트의 챗봇입니다.
-정중하고 도움이 되는 말투로 답변해 주세요.
-시간표·수업 일정 관련 질문에는 get_schedule 도구를 사용해 실제 데이터로 안내합니다.
-맛집·지역 추천(한티역, 대치동 등)은 Google Search를 사용해 실제 검색 결과를 바탕으로 답하세요.
-일정, 학습, 사이트 이용 등 다양한 질문에 폭넓게 대응합니다.`;
+function buildSystemPrompt(): string {
+  return `당신은 SMOOKTH(묵T 수학) 사이트의 챗봇입니다.
+정중하고 친절한 말투로 답변해 주세요.
+사이트 관련 질문뿐 아니라 학습, 수업, 상담 등 다양한 질문에 폭넓게 대응합니다.
 
-function isQuotaError(err: unknown): boolean {
-  const msg = String(err instanceof Error ? err.message : err);
-  return msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota");
+## SMOOKTH 소개
+- 브랜드명: SMOOKTH (묵T 수학)
+- 슬로건: BE LOGICAL ∩ BE TACTICAL
+- 철학: 논리적인 이해 × 전략적인 훈련. 직접 만든 교재(IM LOGIC)와 오답 데이터로 설계하는 수업.
+- 특징: 수업을 투명하게 공개 (OT 영상, 수업 영상, 교재까지 공개). 기초부터 심화까지 모든 학생 수업 가능. 현재 성적·목표에 맞춘 맞춤 상담 제공.
+
+## 수업반 구성 (2026학년도 1학기)
+- 고1 S1반: 월·금 17:30–22:00 (대치동 내신 변별력, 컴팩트한 심화수업)
+- 고1 A2반: 수 17:30–22:00 / 토 09:00–13:30 (기초부터 심화까지)
+- 중3 상심화반: 화·목 17:00–22:00
+
+## 교재 (IM LOGIC)
+- 선생님이 직접 제작한 자체 교재
+- 사이트에서 "IM LOGIC 구경하기" 버튼으로 확인 가능
+
+## 수업 영상
+- 고1 S1반 수업 영상, 고1 B3반 수업 영상, 미적분 1 기본+심화 특강 등 유튜브에 공개
+- 사이트 "반별 수업영상" 섹션에서 시청 가능
+
+## 상담·연락처
+- 휴대폰: 010-3658-7365
+- 이메일: kmlim0407@gmail.com
+- 학원 대표: 02-562-5050
+- 사이트 내 "상담문의" 버튼으로도 연락 가능
+
+## 현재 수업 시간표
+${getScheduleText()}`;
 }
+
+const MessageSchema = z.object({
+  role: z.enum(["user", "model"]),
+  content: z.string().min(1).max(4000),
+});
+
+const BodySchema = z.object({
+  messages: z
+    .array(MessageSchema)
+    .min(1, "메시지가 필요합니다.")
+    .max(50, "메시지가 너무 많습니다."),
+});
 
 export async function POST(req: NextRequest) {
   try {
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "Gemini API 키가 설정되지 않았습니다. GEMINI_API_KEY를 .env.local에 추가하세요." },
-        { status: 500 }
-      );
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0].trim() ??
+      req.headers.get("x-real-ip") ??
+      "unknown";
+
+    const limit = checkRateLimit(ip);
+    if (!limit.allowed) {
+      const retrySec = Math.ceil(limit.retryAfterMs / 1000);
+      const msg =
+        limit.reason === "minute"
+          ? `요청이 너무 많습니다. ${retrySec}초 후 다시 시도해 주세요.`
+          : limit.reason === "hour"
+          ? `시간당 요청 한도에 도달했습니다. ${Math.ceil(retrySec / 60)}분 후 다시 시도해 주세요.`
+          : `오늘 챗봇 사용량이 초과되었습니다. 내일 다시 이용해 주세요.`;
+      return NextResponse.json({ error: msg }, { status: 429, headers: { "Retry-After": String(retrySec) } });
     }
 
-    const { messages } = (await req.json()) as {
-      messages: { role: "user" | "model"; content: string }[];
-    };
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new ApiError(500, "OpenAI API 키가 설정되지 않았습니다. OPENAI_API_KEY를 .env.local에 추가하세요.");
+    }
 
-    const ai = new GoogleGenAI({ apiKey });
+    const body = await req.json();
+    const { messages } = BodySchema.parse(body);
 
-    const contents = [
-      { role: "user" as const, parts: [{ text: `${SYSTEM_PROMPT}\n\n---\n이제 아래 대화에 이어서 마지막 사용자 메시지에 답해주세요.` }] },
-      { role: "model" as const, parts: [{ text: "알겠습니다. 궁금하신 것을 편하게 질문해 주세요." }] },
-      ...messages.map((m) => ({
-        role: m.role as "user" | "model",
-        parts: [{ text: m.content }],
-      })),
-    ];
+    const openai = new OpenAI({ apiKey });
 
-    const tools = [
-      {
-        googleSearch: {},
-        functionDeclarations: [
-          {
-            name: "get_schedule",
-            description: "수업 시간표를 가져옵니다. 사용자가 시간표, 수업 일정, 언제 수업해 등의 질문을 하면 호출합니다.",
-            parameters: { type: Type.OBJECT, properties: {} },
-          },
-        ],
-      },
-    ];
-
-    let response = await ai.models.generateContent({
+    const response = await openai.chat.completions.create({
       model: CHAT_MODEL,
-      contents,
-      config: { tools },
+      messages: [
+        { role: "system", content: buildSystemPrompt() },
+        ...messages.map((m) => ({
+          role: m.role === "model" ? ("assistant" as const) : ("user" as const),
+          content: m.content,
+        })),
+      ],
+      max_tokens: 1000,
     });
 
-    // function call이 있으면 실행하고 다시 요청
-    while (response.functionCalls && response.functionCalls.length > 0) {
-      const fc = response.functionCalls[0];
-      const name = fc.name ?? "";
-      let result: string;
-
-      if (name === "get_schedule") {
-        result = getScheduleText();
-      } else {
-        result = JSON.stringify({ error: "Unknown function" });
-      }
-
-      contents.push({
-        role: "model",
-        parts: [createPartFromFunctionCall(fc.name ?? "", (fc.args ?? {}) as Record<string, unknown>)],
-      } as (typeof contents)[0]);
-      contents.push({
-        role: "user",
-        parts: [
-          createPartFromFunctionResponse(
-            fc.id ?? "",
-            fc.name ?? "",
-            { output: result } as Record<string, unknown>
-          ),
-        ],
-      } as (typeof contents)[0]);
-
-      response = await ai.models.generateContent({
-        model: CHAT_MODEL,
-        contents,
-        config: { tools },
-      });
-    }
-
     const text =
-      response.text?.trim() || "죄송합니다. 답변을 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.";
+      response.choices[0]?.message?.content?.trim() ||
+      "죄송합니다. 답변을 생성하지 못했습니다. 잠시 후 다시 시도해 주세요.";
     return NextResponse.json({ text });
   } catch (err) {
-    console.error("Chat API error:", err);
-    if (isQuotaError(err)) {
-      return NextResponse.json(
-        { error: "요청 한도를 초과했습니다. 잠시 후 다시 시도해 주세요." },
-        { status: 429 }
-      );
+    const msg = err instanceof Error ? err.message : String(err);
+    const status = (err && typeof err === "object" && "status" in err) ? (err as { status: number }).status : 0;
+
+    if (status === 401 || msg.includes("401") || msg.includes("Unauthorized") || msg.includes("Invalid API")) {
+      return NextResponse.json({ error: "OpenAI API 키가 유효하지 않습니다. 키를 확인해 주세요." }, { status: 500 });
     }
-    return NextResponse.json(
-      { error: err instanceof Error ? err.message : "챗봇 오류" },
-      { status: 500 }
-    );
+    if (status === 429 || msg.includes("429") || msg.includes("rate_limit")) {
+      return NextResponse.json({ error: "OpenAI 요청 한도 초과. 잠시 후 다시 시도해 주세요." }, { status: 429 });
+    }
+    if (msg.includes("insufficient_quota") || msg.includes("billing") || msg.includes("quota")) {
+      return NextResponse.json({ error: "OpenAI 크레딧이 부족합니다. platform.openai.com에서 충전해 주세요." }, { status: 500 });
+    }
+    return handleApiError(err);
   }
 }
