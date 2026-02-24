@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { z } from "zod";
 import { getScheduleText } from "@/lib/schedule";
 import { handleApiError, ApiError } from "@/lib/api-error";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, type RateLimitBlocked } from "@/lib/rate-limit";
 
 const CHAT_MODEL = "gpt-4o-mini";
 
@@ -62,11 +62,12 @@ export async function POST(req: NextRequest) {
 
     const limit = checkRateLimit(ip);
     if (!limit.allowed) {
-      const retrySec = Math.ceil(limit.retryAfterMs / 1000);
+      const { retryAfterMs, reason } = limit as RateLimitBlocked;
+      const retrySec = Math.ceil(retryAfterMs / 1000);
       const msg =
-        limit.reason === "minute"
+        reason === "minute"
           ? `요청이 너무 많습니다. ${retrySec}초 후 다시 시도해 주세요.`
-          : limit.reason === "hour"
+          : reason === "hour"
           ? `시간당 요청 한도에 도달했습니다. ${Math.ceil(retrySec / 60)}분 후 다시 시도해 주세요.`
           : `오늘 챗봇 사용량이 초과되었습니다. 내일 다시 이용해 주세요.`;
       return NextResponse.json({ error: msg }, { status: 429, headers: { "Retry-After": String(retrySec) } });

@@ -6,30 +6,6 @@ function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-/** 섹션의 실제 scrollTop 위치를 컨테이너 기준으로 계산 */
-function getSectionScrollTop(section: HTMLElement, container: HTMLElement): number {
-  return (
-    section.getBoundingClientRect().top -
-    container.getBoundingClientRect().top +
-    container.scrollTop
-  );
-}
-
-/** snap-section이 아닌 내부 scrollable 요소 반환 */
-function getInnerScrollable(target: Element, boundary: Element): Element | null {
-  let el: Element | null = target;
-  while (el && el !== boundary) {
-    if (!el.classList.contains("snap-section")) {
-      const oy = getComputedStyle(el).overflowY;
-      if ((oy === "auto" || oy === "scroll") && el.scrollHeight > el.clientHeight + 2) {
-        return el;
-      }
-    }
-    el = el.parentElement;
-  }
-  return null;
-}
-
 function canScrollMore(el: Element, direction: number): boolean {
   if (direction > 0) return el.scrollTop < el.scrollHeight - el.clientHeight - 2;
   return el.scrollTop > 2;
@@ -37,7 +13,7 @@ function canScrollMore(el: Element, direction: number): boolean {
 
 export function useSmoothSnapScroll(
   containerSelector = ".snap-scroll-container",
-  duration = 750,
+  duration = 700,
 ) {
   useEffect(() => {
     const container = document.querySelector(containerSelector) as HTMLElement | null;
@@ -46,27 +22,44 @@ export function useSmoothSnapScroll(
     let isAnimating = false;
     let rafId: number;
 
-    const getSections = (): HTMLElement[] =>
-      Array.from(container.querySelectorAll(".snap-section"));
+    // 섹션 목록 캐싱 — DOM 변경 시 갱신
+    let sections: HTMLElement[] = [];
+    const refreshSections = () => {
+      sections = Array.from(container.querySelectorAll(".snap-section"));
+    };
+    refreshSections();
+
+    const observer = new MutationObserver(refreshSections);
+    observer.observe(container, { childList: true, subtree: false });
+
+    // 섹션별 scrollTop 위치 (레이아웃 안정 후 한 번 계산, resize 시 갱신)
+    let sectionTops: number[] = [];
+    const refreshTops = () => {
+      const containerRect = container.getBoundingClientRect();
+      sectionTops = sections.map(
+        (s) => s.getBoundingClientRect().top - containerRect.top + container.scrollTop
+      );
+    };
+    refreshTops();
+
+    const resizeObserver = new ResizeObserver(refreshTops);
+    resizeObserver.observe(container);
 
     const getCurrentIndex = (): number => {
-      const sections = getSections();
+      const scrollTop = container.scrollTop;
       let idx = 0;
-      for (let i = 0; i < sections.length; i++) {
-        if (getSectionScrollTop(sections[i], container) <= container.scrollTop + 10) {
-          idx = i;
-        }
+      for (let i = 0; i < sectionTops.length; i++) {
+        if ((sectionTops[i] ?? 0) <= scrollTop + 10) idx = i;
       }
       return idx;
     };
 
     const animateToSection = (targetIndex: number) => {
-      const sections = getSections();
       if (targetIndex < 0 || targetIndex >= sections.length) return;
       if (isAnimating) return;
 
       const from = container.scrollTop;
-      const to = getSectionScrollTop(sections[targetIndex], container);
+      const to = sectionTops[targetIndex] ?? 0;
       if (Math.abs(from - to) < 5) return;
 
       isAnimating = true;
@@ -85,15 +78,35 @@ export function useSmoothSnapScroll(
           container.scrollTop = to;
           container.style.scrollSnapType = "";
           isAnimating = false;
+          refreshTops(); // 애니메이션 후 위치 갱신
         }
       };
 
       rafId = requestAnimationFrame(tick);
     };
 
+    // 내부 스크롤 가능 요소 찾기 (getComputedStyle 없이 빠르게)
+    const getInnerScrollable = (target: Element): Element | null => {
+      let el: Element | null = target;
+      while (el && el !== container) {
+        if (!el.classList.contains("snap-section")) {
+          if (
+            el.scrollHeight > el.clientHeight + 2 &&
+            (el as HTMLElement).offsetHeight > 0
+          ) {
+            const oy = (el as HTMLElement).style.overflowY ||
+              getComputedStyle(el).overflowY;
+            if (oy === "auto" || oy === "scroll") return el;
+          }
+        }
+        el = el.parentElement;
+      }
+      return null;
+    };
+
     const onWheel = (e: WheelEvent) => {
       const direction = e.deltaY > 0 ? 1 : -1;
-      const inner = getInnerScrollable(e.target as Element, container);
+      const inner = getInnerScrollable(e.target as Element);
       if (inner && canScrollMore(inner, direction)) return;
 
       e.preventDefault();
@@ -118,7 +131,7 @@ export function useSmoothSnapScroll(
     const onTouchStart = (e: TouchEvent) => {
       touchStartY = e.touches[0].clientY;
       touchStartTime = Date.now();
-      touchInnerEl = getInnerScrollable(e.target as Element, container);
+      touchInnerEl = getInnerScrollable(e.target as Element);
     };
 
     const onTouchEnd = (e: TouchEvent) => {
@@ -146,6 +159,8 @@ export function useSmoothSnapScroll(
       container.removeEventListener("touchend", onTouchEnd);
       window.removeEventListener("keydown", onKeyDown);
       cancelAnimationFrame(rafId);
+      observer.disconnect();
+      resizeObserver.disconnect();
     };
   }, [containerSelector, duration]);
 }

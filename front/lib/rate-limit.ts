@@ -48,9 +48,9 @@ setInterval(() => {
   }
 }, 5 * 60_000);
 
-export type RateLimitResult =
-  | { allowed: true }
-  | { allowed: false; retryAfterMs: number; reason: "minute" | "hour" | "daily" };
+export type RateLimitAllowed = { allowed: true };
+export type RateLimitBlocked = { allowed: false; retryAfterMs: number; reason: "minute" | "hour" | "daily" };
+export type RateLimitResult = RateLimitAllowed | RateLimitBlocked;
 
 export function checkRateLimit(ip: string): RateLimitResult {
   const now = Date.now();

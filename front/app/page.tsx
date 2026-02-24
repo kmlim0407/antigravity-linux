@@ -68,7 +68,7 @@ function ChatSection() {
           <div
             ref={scrollRef}
             className="overflow-y-auto bg-slate-50 p-4"
-            style={{ height: "clamp(240px, calc(100dvh - var(--nav-height) - 14rem), 420px)" }}
+            style={{ height: "clamp(220px, 45dvh, 400px)" }}
           >
             <div className="space-y-2.5">
               {messages.map((m, i) => (
@@ -194,7 +194,11 @@ export default function HomePage() {
           <div className="flex flex-col items-center justify-center gap-2 text-center sm:gap-5 lg:gap-6 xl:gap-10 2xl:gap-12">
             <p className="flex flex-col items-center gap-1.5 text-slate-900 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:gap-x-8 lg:whitespace-nowrap text-[20px] font-bold leading-tight sm:text-[44px] md:text-[52px] lg:text-[72px] xl:text-[90px] 2xl:text-[100px]">
               <span className="tracking-[0.03em] lg:justify-self-end">BE LOGICAL</span>
-              <span className="font-bold text-slate-700 lg:justify-self-center" style={{ fontFamily: "Georgia, 'Noto Serif KR', serif" }}>∩</span>
+              <span className="lg:justify-self-center flex items-center justify-center">
+                <svg viewBox="0 0 60 62" className="w-[0.85em] h-[0.85em]" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="교집합">
+                  <path d="M8 60 L8 28 A22 22 0 0 1 52 28 L52 60" stroke="currentColor" strokeWidth="7" strokeLinecap="round" fill="none"/>
+                </svg>
+              </span>
               <span className="tracking-[0.03em] lg:justify-self-start">BE TACTICAL</span>
             </p>
             <p className="max-w-2xl text-[13px] leading-relaxed text-slate-600 sm:text-[14px] md:text-[15px] lg:text-[17px] xl:text-[19px] 2xl:text-[20px]">

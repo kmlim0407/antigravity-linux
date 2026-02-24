@@ -18,8 +18,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* dark mode disabled — light only */
-@variant dark (&:where(.dark, .dark *));
 
 html, body {
   overflow-x: hidden;

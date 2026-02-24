@@ -123,7 +123,11 @@ export default function NavBar() {
                         },
                       }}
                     >
-                      <span style={{ fontFamily: "Georgia, 'Noto Serif KR', serif" }}>∩</span>
+                      <span className="flex items-center justify-center">
+                        <svg viewBox="0 0 60 62" className="w-[0.8em] h-[0.8em]" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="교집합">
+                          <path d="M8 60 L8 28 A22 22 0 0 1 52 28 L52 60" stroke="currentColor" strokeWidth="7" strokeLinecap="round" fill="none"/>
+                        </svg>
+                      </span>
                     </motion.button>
                   ) : (
                   <motion.div

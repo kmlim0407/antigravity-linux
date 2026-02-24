@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Outfit, Plus_Jakarta_Sans, Noto_Serif_KR } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import Script from "next/script";
 import NavBar from "@/components/NavBar";
 import IntroAnimation from "@/components/IntroAnimation";
@@ -19,6 +19,21 @@ export const metadata: Metadata = {
   icons: {
     icon: "/icon.png",
     apple: "/apple-icon.png",
+  },
+  openGraph: {
+    title: "SMOOKTH",
+    description: "논리적인 이해 × 전략적인 훈련. SMOOKTH와 함께합니다.",
+    url: "https://smookth.vercel.app",
+    siteName: "SMOOKTH",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630 }],
+    locale: "ko_KR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SMOOKTH",
+    description: "논리적인 이해 × 전략적인 훈련. SMOOKTH와 함께합니다.",
+    images: ["/opengraph-image"],
   },
 };
 
@@ -40,15 +55,9 @@ const jakarta = Plus_Jakarta_Sans({
   variable: "--font-jakarta",
 });
 
-const notoSerif = Noto_Serif_KR({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-noto-serif",
-});
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="ko" className={`${outfit.variable} ${jakarta.variable} ${notoSerif.variable}`}>
+    <html lang="ko" className={`${outfit.variable} ${jakarta.variable}`}>
         <body className="bg-white text-slate-900">
         <Script id="pwa-prompt-capture" strategy="beforeInteractive">{`
           window.__pwaPromptEvent = null;
