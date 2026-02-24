@@ -1,5 +1,5 @@
-const CACHE_NAME = "smookth-v1";
-const STATIC_ASSETS = ["/", "/student", "/qna", "/icon.svg", "/manifest.json"];
+const CACHE_NAME = "smookth-v4";
+const STATIC_ASSETS = ["/", "/student", "/qna", "/icon.png", "/manifest.json"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
