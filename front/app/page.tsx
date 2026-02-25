@@ -67,8 +67,13 @@ function ChatSection() {
           {/* 대화창 */}
           <div
             ref={scrollRef}
-            className="overflow-y-auto bg-slate-50 p-4"
-            style={{ height: "clamp(220px, 45dvh, 400px)" }}
+            className="overflow-y-auto p-4"
+            style={{
+              height: "clamp(220px, 45dvh, 400px)",
+              backgroundImage: "url('/chat.jpg')",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
             <div className="space-y-2.5">
               {messages.map((m, i) => (

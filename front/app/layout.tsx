@@ -18,11 +18,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: "/icon.png", sizes: "32x32", type: "image/png" },
-      { url: "/icon.png", sizes: "192x192", type: "image/png" },
-      { url: "/icon.png", sizes: "512x512", type: "image/png" },
+      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon", sizes: "32x32", type: "image/png" },
+      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon", sizes: "192x192", type: "image/png" },
+      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon", sizes: "512x512", type: "image/png" },
     ],
-    apple: "/apple-icon.png",
+    apple: process.env.NEXT_PUBLIC_APPLE_ICON_URL || "/apple-icon",
   },
   openGraph: {
     title: "SMOOKTH",
@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <ServiceWorkerRegister />
         <IntroAnimation />
         <NavBar />
-        <main className="min-h-screen overflow-x-hidden">{children}</main>
+        <main className="min-h-screen">{children}</main>
       </body>
     </html>
   );

@@ -150,17 +150,25 @@ function ManageDashboard() {
 
         {/* 탭 */}
         <div className="mb-6 flex gap-1 rounded-xl border border-slate-200 bg-slate-50 p-1 dark:border-slate-700 dark:bg-slate-800">
-          {([["bookings", "예약 목록"], ["slots", "슬롯 추가"]] as const).map(([key, label]) => (
+          {([["bookings", "예약 목록", null], ["slots", "슬롯 추가", true]] as const).map(([key, label, isSlot]) => (
             <button
               key={key}
               type="button"
               onClick={() => setTab(key)}
-              className={`flex-1 rounded-lg py-2 text-[13px] font-medium transition sm:text-[14px] ${
+              className={`flex flex-1 items-center justify-center gap-1.5 rounded-lg py-2 text-[13px] font-medium transition sm:text-[14px] ${
                 tab === key
                   ? "bg-white text-slate-900 shadow-sm dark:bg-slate-700 dark:text-slate-100"
                   : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-300"
               }`}
             >
+              {isSlot && (
+                <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              )}
               {label}
               {key === "bookings" && counts.pending > 0 && (
                 <span className="ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-amber-500 text-[10px] font-bold text-white">

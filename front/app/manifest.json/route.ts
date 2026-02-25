@@ -1,0 +1,38 @@
+import { NextResponse } from "next/server";
+
+const iconUrl = process.env.NEXT_PUBLIC_ICON_URL || "/icon";
+const appleIconUrl = process.env.NEXT_PUBLIC_APPLE_ICON_URL || "/apple-icon";
+
+export async function GET() {
+  const manifest = {
+    id: "/",
+    name: "SMOOKTH",
+    short_name: "SMOOKTH",
+    description: "논리적인 이해 × 전략적인 훈련. SMOOKTH 수학 스튜디오.",
+    start_url: "/",
+    display: "standalone",
+    display_override: ["standalone", "minimal-ui"],
+    orientation: "portrait",
+    background_color: "#ffffff",
+    theme_color: "#ffffff",
+    lang: "ko",
+    categories: ["education"],
+    icons: [
+      { src: iconUrl, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: iconUrl, sizes: "192x192", type: "image/png", purpose: "maskable" },
+      { src: iconUrl, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: iconUrl, sizes: "512x512", type: "image/png", purpose: "maskable" },
+    ],
+    screenshots: [
+      { src: "/screenshots/desktop", sizes: "1280x800", type: "image/png", form_factor: "wide", label: "SMOOKTH 홈 화면" },
+      { src: "/screenshots/mobile", sizes: "540x960", type: "image/png", form_factor: "narrow", label: "SMOOKTH 모바일 홈" },
+    ],
+    shortcuts: [
+      { name: "성취도 체크", short_name: "성취도", url: "/student", icons: [{ src: iconUrl, sizes: "512x512" }] },
+      { name: "오답 기록", short_name: "오답", url: "/qna", icons: [{ src: iconUrl, sizes: "512x512" }] },
+    ],
+  };
+  return NextResponse.json(manifest, {
+    headers: { "Content-Type": "application/manifest+json" },
+  });
+}

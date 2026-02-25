@@ -19,9 +19,13 @@
 }
 
 
-html, body {
-  overflow-x: hidden;
+html {
+  overflow-x: clip;
   height: 100%;
+}
+body {
+  overflow-x: clip;
+  min-height: 100%;
 }
 body {
   background: var(--background);

@@ -19,6 +19,12 @@ const STUDENT_MANAGE_CARDS = [
     href: "/student-manage/records",
     icon: "📋",
   },
+  {
+    label: "개별 프린트",
+    desc: "학생별 PDF를 업로드·배정하고, 풀이를 조회·첨삭합니다. 실시간 저장·동기화됩니다.",
+    href: "/student-manage/prints",
+    icon: "📄",
+  },
 ];
 
 export default function StudentManagePage() {

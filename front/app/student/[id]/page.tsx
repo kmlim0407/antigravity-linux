@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { findStudentById, type Student } from "@/lib/students";
 
@@ -401,12 +402,21 @@ export default function StudentDetailPage({ params }: PageProps) {
           </div>
         </div>
 
-        <button
-          onClick={() => router.push("/student")}
-          className="mt-4 py-3 px-4 text-sm text-gray-500 underline touch-manipulation min-h-[44px] sm:mt-6"
-        >
-          ← 목록으로
-        </button>
+        <div className="mt-4 flex flex-col items-center gap-2 sm:mt-6">
+          <Link
+            href={`/student/${id}/solve`}
+            className="rounded-xl border border-blue-200 bg-blue-50 px-5 py-3 text-sm font-medium text-blue-700 hover:bg-blue-100 touch-manipulation"
+          >
+            프린트 풀기
+          </Link>
+          <button
+            type="button"
+            onClick={() => router.push("/student")}
+            className="py-3 px-4 text-sm text-gray-500 underline touch-manipulation min-h-[44px]"
+          >
+            ← 목록으로
+          </button>
+        </div>
       </div>
     );
 }

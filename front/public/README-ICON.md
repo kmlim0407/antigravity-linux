@@ -1,26 +1,19 @@
-# PWA 아이콘 적용 방법 (Vercel 포함)
+# PWA 아이콘
 
-브라우저·앱 설치 시 보이는 아이콘은 **이 폴더(`public`)의 파일**을 사용합니다.
+## 방법 1: public 폴더 (기본)
 
-## 반드시 해야 할 일
+- `icon.png`, `apple-icon.png` 를 이 폴더에 넣으면 **서버 라우트 `/icon`, `/apple-icon`** 가 그 파일을 읽어서 서빙합니다.
+- Git에 커밋·푸시하면 Vercel 배포에 포함됩니다.
 
-1. **사용할 이미지 2개를 이 폴더에 넣고 이름을 아래처럼 맞춰 주세요.**
-   - `icon.png` — 메인 아이콘 (512×512 권장)
-   - `apple-icon.png` — iOS용 (같은 파일 복사해도 됨)
+## 방법 2: 외부 URL (캐시/배포 문제 없음)
 
-2. **Git에 추가 후 푸시해야 Vercel에 반영됩니다.**
+아이콘이 계속 안 바뀌면 **이미지 호스팅**을 쓰세요.
 
-   ```bash
-   cd ~/antigravity-linux/front
-   git add public/icon.png public/apple-icon.png
-   git commit -m "Add custom PWA icons"
-   git push
-   ```
+1. 아이콘 이미지를 [imgur.com](https://imgur.com) 또는 [postimages.org](https://postimages.org) 등에 업로드.
+2. **직접 링크 URL** 복사 (예: `https://i.imgur.com/xxxxx.png`).
+3. Vercel 대시보드 → 프로젝트 → **Settings → Environment Variables** 에 추가:
+   - `NEXT_PUBLIC_ICON_URL` = 아이콘 이미지 URL
+   - `NEXT_PUBLIC_APPLE_ICON_URL` = 같은 URL 또는 다른 이미지 URL
+4. **Redeploy** 한 번 실행.
 
-3. **Vercel에서 다시 배포**  
-   (보통 push만 하면 자동 배포됩니다.)
-
-## 요약
-
-- 로컬에만 파일을 넣고 **git add / commit / push를 안 하면** Vercel에는 예전 아이콘이 그대로 보입니다.
-- `icon.png`, `apple-icon.png`를 `front/public/`에 두고, 위처럼 커밋·푸시한 뒤 배포하면 적용됩니다.
+이렇게 하면 Git/캐시 없이 그 URL이 그대로 아이콘으로 사용됩니다.
