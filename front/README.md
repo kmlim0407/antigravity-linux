@@ -48,6 +48,8 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 | `NOTION_QNA_DB_ID` | QnA 영상 목록 DB | 위와 동일하게 DB ID 복사 |
 | `UPSTASH_REDIS_REST_URL` | 학생 성취도 저장 (Redis) | [Upstash Console](https://console.upstash.com) → DB 생성 → REST API 탭 |
 | `UPSTASH_REDIS_REST_TOKEN` | 위와 쌍으로 사용 | 동일 |
+| `BLOB_READ_WRITE_TOKEN` | 프린트 과제 PDF 저장 (Vercel Blob) | Vercel Dashboard → Storage → Blob 생성 후 토큰 복사 |
+| `NEXT_PUBLIC_ABLY_API_KEY` | 실시간 풀이·첨삭 동기화 | [Ably](https://ably.com) 무료 계정 → API Key |
 
 - 챗봇만 쓸 경우: `GEMINI_API_KEY`만 설정하면 됩니다.
 - Vercel 배포 시: 프로젝트 **Settings → Environment Variables**에 같은 키를 추가하세요.

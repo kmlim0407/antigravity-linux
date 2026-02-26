@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 
 type Slot = {
@@ -91,13 +92,34 @@ export default function MakeupPage() {
     >
       <div className="mx-auto max-w-2xl lg:max-w-3xl xl:max-w-4xl">
         {/* 헤더 */}
-        <header className="mb-8 sm:mb-10">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl lg:text-4xl">
-            보강관리
-          </h1>
-          <p className="mt-2 text-[13px] leading-relaxed text-slate-500 dark:text-slate-400 sm:text-[14px]">
-            원하는 날짜와 시간을 선택해 신청하면 선생님이 확인 후 안내드립니다.
-          </p>
+        <header className="mb-8 flex items-start justify-between gap-4 sm:mb-10">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 sm:text-3xl lg:text-4xl">
+              보강관리
+            </h1>
+            <p className="mt-2 text-[13px] leading-relaxed text-slate-500 dark:text-slate-400 sm:text-[14px]">
+              원하는 날짜와 시간을 선택해 신청하면 선생님이 확인 후 안내드립니다.
+            </p>
+          </div>
+          <Link
+            href="/student-manage/makeup"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+            title="관리자 설정"
+            aria-label="관리자 설정"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="h-5 w-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1Z" />
+            </svg>
+          </Link>
         </header>
 
         <AnimatePresence mode="wait">
@@ -299,15 +321,6 @@ export default function MakeupPage() {
           )}
         </AnimatePresence>
       </div>
-
-      {/* 선생님 플로팅 버튼 */}
-      <a
-        href="/student-manage/makeup"
-        className="fixed bottom-5 right-5 flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-xl shadow-sm transition hover:border-slate-300 hover:shadow-md dark:border-slate-700 dark:bg-slate-800"
-        title="선생님 관리"
-      >
-        👨‍💼
-      </a>
     </main>
   );
 }
