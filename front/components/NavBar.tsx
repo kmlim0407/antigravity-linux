@@ -57,7 +57,7 @@ export default function NavBar() {
 
   return (
     <>
-      <div className="sticky top-0 z-50 px-4 pt-1 sm:pt-2">
+      <div className="sticky top-0 z-50 px-4 pt-[calc(env(safe-area-inset-top,0px)+4px)] sm:pt-[calc(env(safe-area-inset-top,0px)+8px)]">
         <div className="mx-auto flex w-full max-w-5xl justify-center">
           <motion.header
             initial={false}
