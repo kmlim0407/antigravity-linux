@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       url: blob.url,
       pathname: blob.pathname,
-      size: blob.size,
+      size: file.size,
     });
   } catch (e) {
     console.error("prints/upload error:", e);

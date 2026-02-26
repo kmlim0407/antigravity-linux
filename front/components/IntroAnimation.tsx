@@ -23,13 +23,20 @@ const KEEP_INDICES = [1, 5, 6]; // M, T, H in SMOOKTH
 export default function IntroAnimation() {
   const [phase, setPhase] = useState<"smookth" | "colon" | "roulette" | "done" | "fadeToMath" | "math" | "withSmookth">("smookth");
   const [rouletteIndex, setRouletteIndex] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [shouldPlay, setShouldPlay] = useState(false);
   const [showing, setShowing] = useState(true);
 
   useEffect(() => {
+    if (window.location.pathname === "/" && !sessionStorage.getItem("intro_done")) {
+      setShouldPlay(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!shouldPlay) return;
     const t1 = setTimeout(() => setPhase("colon"), SMOOKTH_MS);
     return () => clearTimeout(t1);
-  }, []);
+  }, [shouldPlay]);
 
   useEffect(() => {
     if (phase !== "colon") return;
@@ -75,14 +82,17 @@ export default function IntroAnimation() {
   useEffect(() => {
     if (phase !== "withSmookth") return;
     const t1 = setTimeout(() => setShowing(false), SHOW_WITH_SMOOKTH_MS);
-    const t2 = setTimeout(() => setVisible(false), SHOW_WITH_SMOOKTH_MS + FADE_OUT_MS);
+    const t2 = setTimeout(() => {
+      sessionStorage.setItem("intro_done", "1");
+      setShouldPlay(false);
+    }, SHOW_WITH_SMOOKTH_MS + FADE_OUT_MS);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
     };
   }, [phase]);
 
-  if (!visible) return null;
+  if (!shouldPlay) return null;
 
   const showFaded = phase === "fadeToMath" || phase === "math";
   const showMathOnly = phase === "math" || phase === "withSmookth";

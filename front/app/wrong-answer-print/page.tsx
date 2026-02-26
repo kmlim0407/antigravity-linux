@@ -288,10 +288,8 @@ export default function WrongAnswerPrintPage() {
           setProgress(`문항 번호 인식 중(OCR, 3자리만)… (${pageIndex + 1}/${numPages}페이지)`);
           const Tesseract = await import("tesseract.js");
           const preprocessed = preprocessCanvasForOcr(crop.canvas);
-          const result = await Tesseract.recognize(preprocessed, "eng", {
-            logger: () => {},
-            tessedit_char_whitelist: "0123456789",
-          });
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const result = await Tesseract.recognize(preprocessed, "eng", { logger: () => {}, tessedit_char_whitelist: "0123456789" } as any);
           const data = result.data as { words?: Array<{ text?: string; bbox?: { x0: number; y0: number; x1: number; y1: number } }> };
           const words = data?.words ?? [];
 
@@ -423,7 +421,7 @@ export default function WrongAnswerPrintPage() {
       }
 
       setProgress("오답 프린트 PDF 만드는 중…");
-      const { PDFDocument } = await import("pdf-lib");
+      const { PDFDocument, rgb } = await import("pdf-lib");
       const doc = await PDFDocument.create();
       const halfW = COLUMN_WIDTH - 20;
       const margin = 20;
@@ -459,12 +457,12 @@ export default function WrongAnswerPrintPage() {
           start: { x: DIVIDER_X, y: 0 },
           end: { x: DIVIDER_X, y: A4_HEIGHT },
           thickness: 0.5,
-          color: { type: "RGB", red: 0.8, green: 0.8, blue: 0.8 },
+          color: rgb(0.8, 0.8, 0.8),
         });
       }
 
       const pdfBytes = await doc.save();
-      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const blob = new Blob([pdfBytes.buffer as ArrayBuffer], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
