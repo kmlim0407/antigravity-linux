@@ -262,7 +262,27 @@ export default function StudentManageRecordsPage() {
           뒤로가기
         </Link>
         <header>
-          <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">오답 / 기록</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">오답 / 기록</h1>
+            <button
+              onClick={() => {
+                if (adminAuthed) {
+                  setShowAdmin((prev) => !prev);
+                } else {
+                  setShowPinModal(true);
+                }
+              }}
+              className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                showAdmin
+                  ? "bg-blue-600 text-white hover:bg-blue-700"
+                  : "bg-slate-200 text-slate-500 hover:bg-slate-300"
+              }`}
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </button>
+          </div>
           <p className="mt-1 text-[12px] text-slate-600 sm:text-[13px]">기록 입력 → 노션 저장 → 엑셀 내보내기</p>
         </header>
 
@@ -366,26 +386,6 @@ export default function StudentManageRecordsPage() {
           </>
         )}
       </div>
-
-      {/* 관리자 FAB */}
-      <button
-        onClick={() => {
-          if (adminAuthed) {
-            setShowAdmin((prev) => !prev);
-          } else {
-            setShowPinModal(true);
-          }
-        }}
-        className={`fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-colors ${
-          showAdmin
-            ? "bg-blue-600 text-white hover:bg-blue-700"
-            : "bg-slate-700 text-white hover:bg-slate-800"
-        }`}
-      >
-        <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-        </svg>
-      </button>
 
       {/* PIN 입력 모달 */}
       {showPinModal && (
