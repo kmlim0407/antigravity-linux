@@ -18,11 +18,11 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon", sizes: "32x32", type: "image/png" },
-      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon", sizes: "192x192", type: "image/png" },
-      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon", sizes: "512x512", type: "image/png" },
+      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon.png", sizes: "32x32", type: "image/png" },
+      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon.png", sizes: "192x192", type: "image/png" },
+      { url: process.env.NEXT_PUBLIC_ICON_URL || "/icon.png", sizes: "512x512", type: "image/png" },
     ],
-    apple: process.env.NEXT_PUBLIC_APPLE_ICON_URL || "/apple-icon",
+    apple: process.env.NEXT_PUBLIC_APPLE_ICON_URL || "/apple-icon.png",
   },
   openGraph: {
     title: "SMOOKTH",

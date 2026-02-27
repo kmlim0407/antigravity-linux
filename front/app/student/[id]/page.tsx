@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { findStudentById, type Student } from "@/lib/students";
+import StudentWeakAreas from "@/components/StudentWeakAreas";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -400,6 +401,10 @@ export default function StudentDetailPage({ params }: PageProps) {
               </div>
             ))}
           </div>
+        </div>
+
+        <div className="mt-4 w-full max-w-5xl sm:mt-6">
+          <StudentWeakAreas studentId={id} />
         </div>
 
         <div className="mt-4 flex flex-col items-center gap-2 sm:mt-6">

@@ -25,6 +25,18 @@ const STUDENT_MANAGE_CARDS = [
     href: "/student-manage/prints",
     icon: "📄",
   },
+  {
+    label: "부교재",
+    desc: "올고·올유·올학·수신의 특수 유형과 풀이 영상, 손풀이를 관리합니다.",
+    href: "/student-manage/supplementary",
+    icon: "📚",
+  },
+  {
+    label: "학생 분석",
+    desc: "학생별 취약 유형 태그와 메모를 관리합니다. Notion 오답 데이터 자동 분석도 지원합니다.",
+    href: "/student-manage/characteristics",
+    icon: "🔍",
+  },
 ];
 
 export default function StudentManagePage() {

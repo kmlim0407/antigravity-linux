@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+function easeOutCubic(t: number): number {
+  return 1 - Math.pow(1 - t, 3);
 }
 
 function canScrollMore(el: Element, direction: number): boolean {
@@ -13,7 +13,7 @@ function canScrollMore(el: Element, direction: number): boolean {
 
 export function useSmoothSnapScroll(
   containerSelector = ".snap-scroll-container",
-  duration = 700,
+  duration = 450,
 ) {
   useEffect(() => {
     const container = document.querySelector(containerSelector) as HTMLElement | null;
@@ -70,7 +70,7 @@ export function useSmoothSnapScroll(
       const tick = (now: number) => {
         const elapsed = now - start;
         const progress = Math.min(elapsed / duration, 1);
-        container.scrollTop = from + (to - from) * easeInOutCubic(progress);
+        container.scrollTop = from + (to - from) * easeOutCubic(progress);
 
         if (progress < 1) {
           rafId = requestAnimationFrame(tick);
@@ -138,7 +138,7 @@ export function useSmoothSnapScroll(
       if (isAnimating) return;
       const deltaY = touchStartY - e.changedTouches[0].clientY;
       const elapsed = Date.now() - touchStartTime;
-      const isSwipe = Math.abs(deltaY) > 40 || (Math.abs(deltaY) > 15 && elapsed < 250);
+      const isSwipe = Math.abs(deltaY) > 25 || (Math.abs(deltaY) > 10 && elapsed < 300);
       if (!isSwipe) return;
 
       const direction = deltaY > 0 ? 1 : -1;

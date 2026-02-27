@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
-const iconUrl = process.env.NEXT_PUBLIC_ICON_URL || "/icon";
-const appleIconUrl = process.env.NEXT_PUBLIC_APPLE_ICON_URL || "/apple-icon";
+const iconUrl = process.env.NEXT_PUBLIC_ICON_URL || "/icon.png";
+const appleIconUrl = process.env.NEXT_PUBLIC_APPLE_ICON_URL || "/apple-icon.png";
 
 export async function GET() {
   const manifest = {
