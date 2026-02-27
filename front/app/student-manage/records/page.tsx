@@ -19,6 +19,8 @@ type QuestionStat = {
   students: string[];
 };
 
+const ADMIN_KEY = process.env.NEXT_PUBLIC_ADMIN_KEY ?? "smookth";
+
 export default function StudentManageRecordsPage() {
   const [records, setRecords] = useState<RecordItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -32,6 +34,13 @@ export default function StudentManageRecordsPage() {
   const [wrongNumbers, setWrongNumbers] = useState("");
   const [questionNumbers, setQuestionNumbers] = useState("");
   const [memo, setMemo] = useState("");
+
+  // 관리자 FAB 상태
+  const [showAdmin, setShowAdmin] = useState(false);
+  const [adminAuthed, setAdminAuthed] = useState(false);
+  const [pinInput, setPinInput] = useState("");
+  const [pinError, setPinError] = useState("");
+  const [showPinModal, setShowPinModal] = useState(false);
 
   // 최초 로딩 시 기록 불러오기
   useEffect(() => {
@@ -278,81 +287,169 @@ export default function StudentManageRecordsPage() {
         </button>
         </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 className="font-semibold text-slate-800">기록 목록</h2>
-          <button onClick={handleExportCsv} className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 transition hover:bg-slate-50 sm:text-xs">
-            엑셀 내보내기
-          </button>
-        </div>
-
-        {loading ? (
-          <p className="text-[13px] text-slate-500">불러오는 중...</p>
-        ) : records.length === 0 ? (
-          <p className="text-[13px] text-slate-500">기록 없음. 위에서 추가해 주세요.</p>
-        ) : (
-          <div className="flex flex-col gap-2">
-            {records.map((r) => (
-              <div key={r.id} className="rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-[13px]">
-                <div className="font-semibold text-slate-900">{r.studentName}</div>
-                <div className="text-xs text-slate-600">
-                  날짜: {r.date || "-"} · 과목: {r.subject || "-"}
-                </div>
-                <div className="text-xs text-slate-600">
-                  오답: {r.wrongNumbers || "-"} / 질문:{" "}
-                  {r.questionNumbers || "-"}
-                </div>
-                {r.memo && (
-                  <div className="text-xs text-slate-500 mt-1">
-                    메모: {r.memo}
-                  </div>
-                )}
+        {showAdmin && (
+          <>
+            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <h2 className="font-semibold text-slate-800">기록 목록</h2>
+                <button onClick={handleExportCsv} className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-medium text-slate-700 transition hover:bg-slate-50 sm:text-xs">
+                  엑셀 내보내기
+                </button>
               </div>
-            ))}
-          </div>
-        )}
-      </section>
 
-        <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <div className="mb-3">
-          <h2 className="font-semibold text-slate-800">질문 번호 통계</h2>
-          <p className="text-[11px] text-slate-500">등장 횟수·학생 정리</p>
-        </div>
+              {loading ? (
+                <p className="text-[13px] text-slate-500">불러오는 중...</p>
+              ) : records.length === 0 ? (
+                <p className="text-[13px] text-slate-500">기록 없음. 위에서 추가해 주세요.</p>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {records.map((r) => (
+                    <div key={r.id} className="rounded-lg border border-slate-200 bg-slate-50/50 px-3 py-2 text-[13px]">
+                      <div className="font-semibold text-slate-900">{r.studentName}</div>
+                      <div className="text-xs text-slate-600">
+                        날짜: {r.date || "-"} · 과목: {r.subject || "-"}
+                      </div>
+                      <div className="text-xs text-slate-600">
+                        오답: {r.wrongNumbers || "-"} / 질문:{" "}
+                        {r.questionNumbers || "-"}
+                      </div>
+                      {r.memo && (
+                        <div className="text-xs text-slate-500 mt-1">
+                          메모: {r.memo}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
 
-        {questionStats.length === 0 ? (
-          <p className="text-[13px] text-slate-500">질문 번호 기록 없음</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-left text-xs">
-              <thead>
-                <tr className="border-b bg-slate-50 text-slate-600">
-                  <th className="px-2 py-1.5">질문 번호</th>
-                  <th className="px-2 py-1.5">등장 횟수</th>
-                  <th className="px-2 py-1.5">학생들</th>
-                </tr>
-              </thead>
-              <tbody>
-                {questionStats.map((q) => (
-                  <tr key={q.question} className="border-b last:border-b-0">
-                    <td className="px-2 py-1.5 font-medium text-slate-800">
-                      {q.question}
-                    </td>
-                    <td className="px-2 py-1.5 text-slate-700">
-                      {q.count}
-                    </td>
-                    <td className="px-2 py-1.5 text-slate-600">
-                      {q.students.length
-                        ? q.students.join(", ")
-                        : "(학생 이름 없음)"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+            <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="mb-3">
+                <h2 className="font-semibold text-slate-800">질문 번호 통계</h2>
+                <p className="text-[11px] text-slate-500">등장 횟수·학생 정리</p>
+              </div>
+
+              {questionStats.length === 0 ? (
+                <p className="text-[13px] text-slate-500">질문 번호 기록 없음</p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b bg-slate-50 text-slate-600">
+                        <th className="px-2 py-1.5">질문 번호</th>
+                        <th className="px-2 py-1.5">등장 횟수</th>
+                        <th className="px-2 py-1.5">학생들</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {questionStats.map((q) => (
+                        <tr key={q.question} className="border-b last:border-b-0">
+                          <td className="px-2 py-1.5 font-medium text-slate-800">
+                            {q.question}
+                          </td>
+                          <td className="px-2 py-1.5 text-slate-700">
+                            {q.count}
+                          </td>
+                          <td className="px-2 py-1.5 text-slate-600">
+                            {q.students.length
+                              ? q.students.join(", ")
+                              : "(학생 이름 없음)"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
+          </>
         )}
-        </section>
       </div>
+
+      {/* 관리자 FAB */}
+      <button
+        onClick={() => {
+          if (adminAuthed) {
+            setShowAdmin((prev) => !prev);
+          } else {
+            setShowPinModal(true);
+          }
+        }}
+        className={`fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-colors ${
+          showAdmin
+            ? "bg-blue-600 text-white hover:bg-blue-700"
+            : "bg-slate-700 text-white hover:bg-slate-800"
+        }`}
+      >
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+        </svg>
+      </button>
+
+      {/* PIN 입력 모달 */}
+      {showPinModal && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40"
+          onClick={() => {
+            setShowPinModal(false);
+            setPinInput("");
+            setPinError("");
+          }}
+        >
+          <div
+            className="mx-4 w-full max-w-xs rounded-2xl bg-white p-6 shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-4 text-center text-[15px] font-semibold text-slate-800">
+              관리자 비밀번호
+            </h3>
+            <input
+              type="password"
+              autoFocus
+              placeholder="비밀번호 입력"
+              value={pinInput}
+              onChange={(e) => {
+                setPinInput(e.target.value);
+                setPinError("");
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  if (pinInput === ADMIN_KEY) {
+                    setAdminAuthed(true);
+                    setShowAdmin(true);
+                    setShowPinModal(false);
+                    setPinInput("");
+                    setPinError("");
+                  } else {
+                    setPinError("비밀번호가 틀렸습니다.");
+                  }
+                }
+              }}
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-[14px] focus:border-blue-400 focus:outline-none"
+            />
+            {pinError && (
+              <p className="mt-2 text-[12px] text-red-500">{pinError}</p>
+            )}
+            <button
+              onClick={() => {
+                if (pinInput === ADMIN_KEY) {
+                  setAdminAuthed(true);
+                  setShowAdmin(true);
+                  setShowPinModal(false);
+                  setPinInput("");
+                  setPinError("");
+                } else {
+                  setPinError("비밀번호가 틀렸습니다.");
+                }
+              }}
+              className="mt-4 w-full rounded-full bg-blue-600 py-2 text-[13px] font-semibold text-white transition hover:bg-blue-700"
+            >
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
