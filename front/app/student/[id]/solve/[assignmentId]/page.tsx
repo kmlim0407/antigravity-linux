@@ -126,11 +126,12 @@ export default function StudentSolvePage({ params }: PageProps) {
     async (data: AnnotationData) => {
       setSaving(true);
       try {
-        await fetch(`/api/prints/assignments/${assignmentId}/annotation`, {
+        const res = await fetch(`/api/prints/assignments/${assignmentId}/annotation`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) throw new Error("저장 실패");
       } finally {
         setSaving(false);
       }

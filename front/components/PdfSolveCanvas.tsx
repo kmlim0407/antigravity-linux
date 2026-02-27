@@ -58,6 +58,19 @@ function dist(a: Point, b: Point) {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+/** 가까운 포인트를 솎아내서 stroke 데이터 크기 줄이기 */
+function simplifyPoints(points: Point[], tolerance = 1.5): Point[] {
+  if (points.length <= 2) return points;
+  const result = [points[0]!];
+  for (let i = 1; i < points.length - 1; i++) {
+    if (dist(points[i]!, result[result.length - 1]!) >= tolerance) {
+      result.push(points[i]!);
+    }
+  }
+  result.push(points[points.length - 1]!);
+  return result;
+}
+
 function strokesIntersectEraser(strokes: Stroke[], eraserPoints: Point[], radius: number): Stroke[] {
   return strokes.filter((stroke) => {
     for (const sp of stroke.points) {
@@ -86,6 +99,7 @@ export default function PdfSolveCanvas({
   const [annotation, setAnnotation] = useState<AnnotationData>(initialAnnotation);
   const [correction, setCorrection] = useState<AnnotationData>(initialCorrection);
   const [dirty, setDirty] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const isDrawing = mode === "solve" || mode === "correct";
@@ -209,14 +223,20 @@ export default function PdfSolveCanvas({
   useEffect(() => {
     if (!dirty || !isDrawing) return;
     const save = async () => {
-      if (isCorrectMode && onSaveCorrection) {
-        await onSaveCorrection(correction);
-        publishCorrection(assignmentId, correction);
-      } else if (!isCorrectMode && onSaveAnnotation) {
-        await onSaveAnnotation(annotation);
-        publishAnnotation(assignmentId, annotation);
+      try {
+        setSaveError(null);
+        if (isCorrectMode && onSaveCorrection) {
+          await onSaveCorrection(correction);
+          publishCorrection(assignmentId, correction);
+        } else if (!isCorrectMode && onSaveAnnotation) {
+          await onSaveAnnotation(annotation);
+          publishAnnotation(assignmentId, annotation);
+        }
+        setDirty(false);
+      } catch (err) {
+        console.warn("자동 저장 실패:", err);
+        setSaveError("저장에 실패했습니다. 필기가 너무 많으면 일부를 지워주세요.");
       }
-      setDirty(false);
     };
     saveTimeoutRef.current = setTimeout(save, 2000);
     return () => {
@@ -279,6 +299,11 @@ export default function PdfSolveCanvas({
 
   return (
     <div ref={containerRef} className="space-y-4 pb-8">
+      {saveError && (
+        <div className="mx-auto max-w-2xl rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-center text-sm text-red-600">
+          {saveError}
+        </div>
+      )}
       {isDrawing && (
         <div className="sticky z-10 mx-auto max-w-2xl rounded-3xl border border-slate-200/80 bg-white/98 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-xl dark:border-slate-600/50 dark:bg-slate-900/98 dark:shadow-slate-900/50" style={{ top: 'calc(var(--nav-height) + 8px)' }}>
           {/* 상단: 도구 + Undo/Redo */}
@@ -562,7 +587,9 @@ function PageCanvas({
           canvasContext: ctx2,
           viewport: vp,
         }).promise;
-      } catch {}
+      } catch (err) {
+        console.warn("renderPdf failed:", err);
+      }
     }
     renderPdf();
     return () => { cancelled = true; };
@@ -695,7 +722,7 @@ function PageCanvas({
         }
       } else if (isPenOrHighlighter && currentStrokeRef.current.length >= 2) {
         onStroke({
-          points: [...currentStrokeRef.current],
+          points: simplifyPoints([...currentStrokeRef.current]),
           color: strokeColor,
           width: isFountain ? fountainBaseWidth : strokeWidthFinal,
           ...(tool === "highlighter" && { opacity: strokeOpacity }),

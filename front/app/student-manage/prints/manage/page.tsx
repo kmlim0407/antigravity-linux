@@ -107,8 +107,8 @@ function PrintsDashboard() {
 
       const uploadRes = await fetch("/api/prints/upload", { method: "POST", body: formData });
       if (!uploadRes.ok) {
-        const d = await uploadRes.json();
-        throw new Error(d.error ?? "업로드 실패");
+        const d = await uploadRes.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error ?? "업로드 실패");
       }
       const { url } = await uploadRes.json();
 
@@ -130,8 +130,8 @@ function PrintsDashboard() {
         body: JSON.stringify({ studentId, pdfUrl: url, title: title.trim() || "과제", pageCount }),
       });
       if (!assignRes.ok) {
-        const d = await assignRes.json();
-        throw new Error(d.error ?? "과제 생성 실패");
+        const d = await assignRes.json().catch(() => ({}));
+        throw new Error((d as { error?: string }).error ?? "과제 생성 실패");
       }
 
       setFile(null);

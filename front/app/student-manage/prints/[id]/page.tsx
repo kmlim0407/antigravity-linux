@@ -90,11 +90,12 @@ export default function PrintCorrectionPage({ params }: PageProps) {
     async (data: AnnotationData) => {
       setSaving(true);
       try {
-        await fetch(`/api/prints/assignments/${assignmentId}/correction`, {
+        const res = await fetch(`/api/prints/assignments/${assignmentId}/correction`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),
         });
+        if (!res.ok) throw new Error("저장 실패");
       } finally {
         setSaving(false);
       }
