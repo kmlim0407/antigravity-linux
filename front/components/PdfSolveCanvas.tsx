@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import type { Point, Stroke, AnnotationData } from "@/lib/prints";
 import { publishAnnotation, publishCorrection } from "@/lib/realtime";
@@ -15,8 +15,8 @@ type Props = {
   onSaveCorrection?: (data: AnnotationData) => Promise<void>;
 };
 
-const DRAW_COLOR = "#1e40af";
 const CORRECTION_COLOR = "#dc2626";
+const MAX_HISTORY = 30;
 
 const COLOR_PRESETS = [
   { name: "검정", value: "#1f2937" },
@@ -114,73 +114,97 @@ export default function PdfSolveCanvas({
   const [showPastel, setShowPastel] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
 
-  const [history, setHistory] = useState<AnnotationData[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(0);
+  // ── History (refs로 관리하여 불필요한 리렌더 방지) ──
+  const historyRef = useRef<AnnotationData[]>([]);
+  const historyIndexRef = useRef(0);
+  const [, setHistoryTick] = useState(0); // undo/redo 버튼 리렌더용
 
   const applyChange = useCallback(
     (getNext: (prev: AnnotationData) => AnnotationData) => {
-      const prev = isCorrectMode ? correction : annotation;
-      const next = getNext(prev);
-      if (isCorrectMode) setCorrection(next);
-      else setAnnotation(next);
-      setHistory((h) => [...h.slice(0, historyIndex + 1), JSON.parse(JSON.stringify(next))]);
-      setHistoryIndex((i) => i + 1);
-      setDirty(true);
+      const setter = isCorrectMode ? setCorrection : setAnnotation;
+      setter((prev) => {
+        const next = getNext(prev);
+        // history 업데이트 (ref)
+        const h = historyRef.current;
+        const idx = historyIndexRef.current;
+        const sliced = h.slice(0, idx + 1);
+        const newHistory = [...(sliced.length >= MAX_HISTORY ? sliced.slice(1) : sliced), JSON.parse(JSON.stringify(next))];
+        historyRef.current = newHistory;
+        historyIndexRef.current = newHistory.length - 1;
+        setHistoryTick((t) => t + 1);
+        setDirty(true);
+        return next;
+      });
     },
-    [isCorrectMode, correction, annotation, historyIndex]
+    [isCorrectMode]
   );
 
   const undo = useCallback(() => {
-    if (historyIndex <= 0) return;
-    const nextIdx = historyIndex - 1;
-    const data = history[nextIdx];
-    if (data) {
-      if (isCorrectMode) setCorrection(data);
-      else setAnnotation(data);
-      setHistoryIndex(nextIdx);
-      setDirty(true);
-    }
-  }, [isCorrectMode, history, historyIndex]);
+    const idx = historyIndexRef.current;
+    if (idx <= 0) return;
+    const newIdx = idx - 1;
+    const data = historyRef.current[newIdx];
+    if (!data) return;
+    historyIndexRef.current = newIdx;
+    const setter = isCorrectMode ? setCorrection : setAnnotation;
+    setter(data);
+    setDirty(true);
+    setHistoryTick((t) => t + 1);
+  }, [isCorrectMode]);
 
   const redo = useCallback(() => {
-    if (historyIndex >= history.length - 1) return;
-    const nextIdx = historyIndex + 1;
-    const data = history[nextIdx];
-    if (data) {
-      if (isCorrectMode) setCorrection(data);
-      else setAnnotation(data);
-      setHistoryIndex(nextIdx);
-      setDirty(true);
-    }
-  }, [isCorrectMode, history, historyIndex]);
+    const idx = historyIndexRef.current;
+    if (idx >= historyRef.current.length - 1) return;
+    const newIdx = idx + 1;
+    const data = historyRef.current[newIdx];
+    if (!data) return;
+    historyIndexRef.current = newIdx;
+    const setter = isCorrectMode ? setCorrection : setAnnotation;
+    setter(data);
+    setDirty(true);
+    setHistoryTick((t) => t + 1);
+  }, [isCorrectMode]);
 
-  const canUndo = historyIndex > 0;
-  const canRedo = historyIndex < history.length - 1;
+  const canUndo = historyIndexRef.current > 0;
+  const canRedo = historyIndexRef.current < historyRef.current.length - 1;
 
+  // history 초기화
   useEffect(() => {
     const data = isCorrectMode ? initialCorrection : initialAnnotation;
     const copy = JSON.parse(JSON.stringify(data));
-    setHistory([copy]);
-    setHistoryIndex(0);
+    historyRef.current = [copy];
+    historyIndexRef.current = 0;
+    setHistoryTick((t) => t + 1);
   }, [assignmentId, isCorrectMode, initialAnnotation, initialCorrection]);
 
-  const removeStrokesByEraser = useCallback(
-    (pageIndex: number, eraserPoints: Point[], radius: number) => {
-      const data = isCorrectMode ? correction : annotation;
-      const page = data[pageIndex];
-      if (!page) return;
-      const kept = strokesIntersectEraser(page.strokes, eraserPoints, radius);
-      if (kept.length === page.strokes.length) return;
+  // ── Stroke / Eraser 콜백 (stable — isCorrectMode만 의존) ──
+  const handleStroke = useCallback(
+    (pageIndex: number, stroke: Stroke) => {
       applyChange((prev) => {
-        const p = prev[pageIndex];
-        if (!p) return prev;
+        const page = prev[pageIndex] ?? { pageIndex, strokes: [], updatedAt: new Date().toISOString() };
         return {
           ...prev,
-          [pageIndex]: { ...p, strokes: kept, updatedAt: new Date().toISOString() },
+          [pageIndex]: { ...page, strokes: [...page.strokes, stroke], updatedAt: new Date().toISOString() },
         };
       });
     },
-    [annotation, correction, isCorrectMode, applyChange]
+    [applyChange]
+  );
+
+  const handleEraserStroke = useCallback(
+    (pageIndex: number, points: Point[], radius: number) => {
+      applyChange((prev) => {
+        const page = prev[pageIndex];
+        if (!page) return prev;
+        const kept = strokesIntersectEraser(page.strokes, points, radius);
+        if (kept.length === page.strokes.length) return prev;
+        return {
+          ...prev,
+          [pageIndex]: { ...page, strokes: kept, updatedAt: new Date().toISOString() },
+        };
+      });
+    },
+    [applyChange]
   );
 
   // Private Blob은 브라우저에서 직접 접근 불가 → 프록시 API 사용
@@ -189,37 +213,12 @@ export default function PdfSolveCanvas({
       ? `/api/prints/blob?url=${encodeURIComponent(pdfUrl)}`
       : pdfUrl;
 
-  const mergeAnnotation = useCallback(
-    (pageIndex: number, newStroke: Stroke) => {
-      applyChange((prev) => {
-        const page = prev[pageIndex] ?? { pageIndex, strokes: [], updatedAt: new Date().toISOString() };
-        return {
-          ...prev,
-          [pageIndex]: { ...page, strokes: [...page.strokes, newStroke], updatedAt: new Date().toISOString() },
-        };
-      });
-    },
-    [applyChange]
-  );
-
-  const mergeCorrection = useCallback(
-    (pageIndex: number, newStroke: Stroke) => {
-      applyChange((prev) => {
-        const page = prev[pageIndex] ?? { pageIndex, strokes: [], updatedAt: new Date().toISOString() };
-        return {
-          ...prev,
-          [pageIndex]: { ...page, strokes: [...page.strokes, newStroke], updatedAt: new Date().toISOString() },
-        };
-      });
-    },
-    [applyChange]
-  );
-
   useEffect(() => {
     setAnnotation(initialAnnotation);
     setCorrection(initialCorrection);
   }, [assignmentId, initialAnnotation, initialCorrection]);
 
+  // ── 자동 저장 ──
   useEffect(() => {
     if (!dirty || !isDrawing) return;
     const save = async () => {
@@ -244,6 +243,7 @@ export default function PdfSolveCanvas({
     };
   }, [dirty, annotation, correction, isCorrectMode, isDrawing, assignmentId, onSaveAnnotation, onSaveCorrection]);
 
+  // ── PDF 로드 ──
   useEffect(() => {
     let cancelled = false;
     async function load() {
@@ -507,18 +507,36 @@ export default function PdfSolveCanvas({
           highlighterWidth={highlighterWidth}
           eraserWidth={eraserWidth}
           isCorrectMode={isCorrectMode}
-          onStroke={(stroke) => {
-            if (isCorrectMode) mergeCorrection(pageIndex, stroke);
-            else mergeAnnotation(pageIndex, stroke);
-          }}
-          onEraserStroke={(points, radius) => removeStrokesByEraser(pageIndex, points, radius)}
+          onStroke={handleStroke}
+          onEraserStroke={handleEraserStroke}
         />
       ))}
     </div>
   );
 }
 
-function PageCanvas({
+// ── PageCanvas (memo로 감싸서 불필요한 리렌더 방지) ──
+
+type PageCanvasProps = {
+  pdfUrl: string;
+  pageIndex: number;
+  width: number;
+  height: number;
+  annotation?: { strokes: Stroke[] };
+  correction?: { strokes: Stroke[] };
+  mode: "solve" | "view" | "correct";
+  tool: "pen" | "highlighter" | "eraser";
+  penStyle: "ballpoint" | "fountain";
+  color: string;
+  strokeWidth: number;
+  highlighterWidth: number;
+  eraserWidth: number;
+  isCorrectMode: boolean;
+  onStroke: (pageIndex: number, stroke: Stroke) => void;
+  onEraserStroke: (pageIndex: number, points: Point[], radius: number) => void;
+};
+
+const PageCanvas = memo(function PageCanvas({
   pdfUrl,
   pageIndex,
   width,
@@ -535,35 +553,24 @@ function PageCanvas({
   isCorrectMode,
   onStroke,
   onEraserStroke,
-}: {
-  pdfUrl: string;
-  pageIndex: number;
-  width: number;
-  height: number;
-  annotation?: { strokes: Stroke[] };
-  correction?: { strokes: Stroke[] };
-  mode: "solve" | "view" | "correct";
-  tool: "pen" | "highlighter" | "eraser";
-  penStyle: "ballpoint" | "fountain";
-  color: string;
-  strokeWidth: number;
-  highlighterWidth: number;
-  eraserWidth: number;
-  isCorrectMode: boolean;
-  onStroke: (stroke: Stroke) => void;
-  onEraserStroke: (points: Point[], radius: number) => void;
-}) {
+}: PageCanvasProps) {
   const pdfCanvasRef = useRef<HTMLCanvasElement>(null);
   const drawCanvasRef = useRef<HTMLCanvasElement>(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
   const isDrawingRef = useRef(false);
   const currentStrokeRef = useRef<Point[]>([]);
 
+  // refs로 최신 annotation/correction 유지 (handlePointerMove 안정화)
+  const annotationRef = useRef(annotation);
+  const correctionRef = useRef(correction);
+  useEffect(() => { annotationRef.current = annotation; }, [annotation]);
+  useEffect(() => { correctionRef.current = correction; }, [correction]);
+
   const eraserRadius = eraserWidth / 2;
   const isPenOrHighlighter = tool === "pen" || tool === "highlighter";
   const strokeColor = color;
   const strokeWidthFinal =
-    tool === "highlighter" ? highlighterWidth : tool === "pen" ? strokeWidth : strokeWidth;
+    tool === "highlighter" ? highlighterWidth : strokeWidth;
   const strokeOpacity = tool === "highlighter" ? 0.45 : tool === "pen" && penStyle === "fountain" ? 0.55 : 1;
   const isFountain = tool === "pen" && penStyle === "fountain";
   const fountainBaseWidth = 1;
@@ -628,7 +635,6 @@ function PageCanvas({
     ctx2.lineJoin = "round";
 
     if (stroke.penStyle === "fountain") {
-      // 만년필: 테이퍼드 선 (시작·끝 얇고 중간 굵게), 얇은 형광펜 느낌
       const pts = stroke.points;
       const baseW = stroke.width;
       for (let i = 0; i < pts.length - 1; i++) {
@@ -696,18 +702,19 @@ function PageCanvas({
           ...(isFountain && { opacity: strokeOpacity, penStyle: "fountain" }),
         };
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        [annotation?.strokes ?? [], correction?.strokes ?? []].forEach((strokes) => {
+        // ref 사용하여 콜백 재생성 방지
+        [annotationRef.current?.strokes ?? [], correctionRef.current?.strokes ?? []].forEach((strokes) => {
           strokes.forEach((s) => drawStroke(ctx!, s, s.color, s.opacity));
         });
         drawStroke(ctx, stroke, strokeColor, strokeOpacity);
       } else {
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        [annotation?.strokes ?? [], correction?.strokes ?? []].forEach((strokes) => {
+        [annotationRef.current?.strokes ?? [], correctionRef.current?.strokes ?? []].forEach((strokes) => {
           strokes.forEach((s) => drawStroke(ctx!, s, s.color, s.opacity));
         });
       }
     },
-    [ctx, annotation, correction, tool, isPenOrHighlighter, isFountain, strokeColor, strokeWidthFinal, strokeOpacity, fountainBaseWidth]
+    [ctx, tool, isPenOrHighlighter, isFountain, strokeColor, strokeWidthFinal, strokeOpacity, fountainBaseWidth]
   );
 
   const handlePointerUp = useCallback(
@@ -718,10 +725,10 @@ function PageCanvas({
       isDrawingRef.current = false;
       if (tool === "eraser") {
         if (currentStrokeRef.current.length >= 1) {
-          onEraserStroke([...currentStrokeRef.current], eraserRadius);
+          onEraserStroke(pageIndex, [...currentStrokeRef.current], eraserRadius);
         }
       } else if (isPenOrHighlighter && currentStrokeRef.current.length >= 2) {
-        onStroke({
+        onStroke(pageIndex, {
           points: simplifyPoints([...currentStrokeRef.current]),
           color: strokeColor,
           width: isFountain ? fountainBaseWidth : strokeWidthFinal,
@@ -731,7 +738,7 @@ function PageCanvas({
       }
       currentStrokeRef.current = [];
     },
-    [tool, isPenOrHighlighter, isFountain, onStroke, onEraserStroke, strokeColor, strokeWidthFinal, strokeOpacity, fountainBaseWidth, eraserRadius]
+    [tool, isPenOrHighlighter, isFountain, pageIndex, onStroke, onEraserStroke, strokeColor, strokeWidthFinal, strokeOpacity, fountainBaseWidth, eraserRadius]
   );
 
   const [windowWidth, setWindowWidth] = useState(() =>
@@ -777,4 +784,4 @@ function PageCanvas({
       </div>
     </div>
   );
-}
+});
