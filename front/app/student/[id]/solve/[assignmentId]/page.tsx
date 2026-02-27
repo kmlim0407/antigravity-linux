@@ -33,15 +33,30 @@ export default function StudentSolvePage({ params }: PageProps) {
   const [annotation, setAnnotation] = useState<AnnotationData>({});
   const [correction, setCorrection] = useState<AnnotationData>({});
   const [saving, setSaving] = useState(false);
+  const [loadingAssignment, setLoadingAssignment] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadAssignment = useCallback(async () => {
+    setLoadingAssignment(true);
+    setLoadError(null);
     try {
       const res = await fetch(`/api/prints/assignments/${assignmentId}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        setLoadError("과제를 불러오지 못했습니다.");
+        return;
+      }
       const data = await res.json();
-      if (data.studentId !== id) return;
+      if (data.studentId !== id) {
+        setLoadError("과제를 찾을 수 없습니다.");
+        return;
+      }
       setAssignment(data);
-    } catch {}
+    } catch (err) {
+      console.warn("loadAssignment failed:", err);
+      setLoadError("과제를 불러오지 못했습니다.");
+    } finally {
+      setLoadingAssignment(false);
+    }
   }, [assignmentId, id]);
 
   const loadAnnotation = useCallback(async () => {
@@ -51,7 +66,9 @@ export default function StudentSolvePage({ params }: PageProps) {
         const data = await res.json();
         setAnnotation(data);
       }
-    } catch {}
+    } catch (err) {
+      console.warn("loadAnnotation failed:", err);
+    }
   }, [assignmentId]);
 
   const loadCorrection = useCallback(async () => {
@@ -61,7 +78,9 @@ export default function StudentSolvePage({ params }: PageProps) {
         const data = await res.json();
         setCorrection(data);
       }
-    } catch {}
+    } catch (err) {
+      console.warn("loadCorrection failed:", err);
+    }
   }, [assignmentId]);
 
   useEffect(() => {
@@ -165,10 +184,18 @@ export default function StudentSolvePage({ params }: PageProps) {
     );
   }
 
+  if (loadingAssignment) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-slate-500">불러오는 중…</p>
+      </div>
+    );
+  }
+
   if (!assignment) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center px-4">
-        <p className="mb-4 text-center text-sm">과제를 찾을 수 없습니다.</p>
+        <p className="mb-4 text-center text-sm">{loadError ?? "과제를 찾을 수 없습니다."}</p>
         <Link href={`/student/${id}/solve`} className="text-sm text-blue-600 underline">
           목록으로
         </Link>

@@ -280,7 +280,7 @@ export default function PdfSolveCanvas({
   return (
     <div ref={containerRef} className="space-y-4 pb-8">
       {isDrawing && (
-        <div className="sticky top-2 z-10 mx-auto max-w-2xl rounded-3xl border border-slate-200/80 bg-white/98 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-xl dark:border-slate-600/50 dark:bg-slate-900/98 dark:shadow-slate-900/50">
+        <div className="sticky z-10 mx-auto max-w-2xl rounded-3xl border border-slate-200/80 bg-white/98 p-4 shadow-lg shadow-slate-200/50 backdrop-blur-xl dark:border-slate-600/50 dark:bg-slate-900/98 dark:shadow-slate-900/50" style={{ top: 'calc(var(--nav-height) + 8px)' }}>
           {/* 상단: 도구 + Undo/Redo */}
           <div className="flex flex-wrap items-center justify-center gap-2">
             <div className="flex rounded-2xl bg-slate-100/80 p-1 dark:bg-slate-800/80">
@@ -707,7 +707,17 @@ function PageCanvas({
     [tool, isPenOrHighlighter, isFountain, onStroke, onEraserStroke, strokeColor, strokeWidthFinal, strokeOpacity, fountainBaseWidth, eraserRadius]
   );
 
-  const scale = Math.min(1, (typeof window !== "undefined" ? window.innerWidth : 800) / width) * 0.95;
+  const [windowWidth, setWindowWidth] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth : 800
+  );
+
+  useEffect(() => {
+    const onResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  const scale = Math.min(1, windowWidth / width) * 0.95;
 
   return (
     <div className="flex justify-center">
@@ -724,14 +734,14 @@ function PageCanvas({
           ref={drawCanvasRef}
           width={width}
           height={height}
-          className={`absolute left-0 top-0 block max-w-full touch-none ${
+          className={`absolute left-0 top-0 block max-w-full ${
             (mode === "solve" || mode === "correct")
               ? tool === "eraser"
                 ? "cursor-cell"
                 : "cursor-crosshair"
               : ""
           }`}
-          style={{ width: width * scale, height: height * scale }}
+          style={{ width: width * scale, height: height * scale, touchAction: (mode === "solve" || mode === "correct") ? "none" : "pan-x pan-y pinch-zoom" }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}

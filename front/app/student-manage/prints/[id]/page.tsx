@@ -27,14 +27,23 @@ export default function PrintCorrectionPage({ params }: PageProps) {
   const [correction, setCorrection] = useState<AnnotationData>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadAssignment = useCallback(async () => {
     try {
       const res = await fetch(`/api/prints/assignments/${assignmentId}`);
-      if (!res.ok) return;
+      if (!res.ok) {
+        setLoadError("과제를 불러오지 못했습니다.");
+        return;
+      }
       const data = await res.json();
       setAssignment(data);
-    } catch {}
+    } catch (err) {
+      console.warn("loadAssignment failed:", err);
+      setLoadError("과제를 불러오지 못했습니다.");
+    } finally {
+      setLoading(false);
+    }
   }, [assignmentId]);
 
   const loadAnnotation = useCallback(async () => {
@@ -44,7 +53,9 @@ export default function PrintCorrectionPage({ params }: PageProps) {
         const data = await res.json();
         setAnnotation(data);
       }
-    } catch {}
+    } catch (err) {
+      console.warn("loadAnnotation failed:", err);
+    }
   }, [assignmentId]);
 
   const loadCorrection = useCallback(async () => {
@@ -54,7 +65,9 @@ export default function PrintCorrectionPage({ params }: PageProps) {
         const data = await res.json();
         setCorrection(data);
       }
-    } catch {}
+    } catch (err) {
+      console.warn("loadCorrection failed:", err);
+    }
   }, [assignmentId]);
 
   useEffect(() => {
@@ -102,7 +115,7 @@ export default function PrintCorrectionPage({ params }: PageProps) {
   if (!assignment) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center px-4">
-        <p className="mb-4 text-slate-500">과제를 찾을 수 없습니다.</p>
+        <p className="mb-4 text-slate-500">{loadError ?? "과제를 찾을 수 없습니다."}</p>
         <Link href="/student-manage/prints/manage" className="text-blue-600 underline">
           목록으로
         </Link>
